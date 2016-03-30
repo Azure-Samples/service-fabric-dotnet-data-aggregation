@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Metrics</title>
+    <link href="/Content/main.css" rel="stylesheet" />
+    <link href="/Content/jquery.jqplot.css" rel="stylesheet" />
+</head>
+<body>
+    <header>
+        <div class="wrapper clearfix header-content">
+            <div class="header-title">
+                <h2>Azure Service Fabric</h2>
+                <h1>Health Metrics</h1>
+            </div>
+            <div class="header-login">
+                <div class="login-links">
+                    <a id="userLoginLink" href="#users">User login</a>
+                    <a id="doctorLoginLink" href="#doctors">Doctor login</a>
+                </div>
+                <div class="login-user">
+                    <div>welcome</div>
+                    <h3></h3>
+                </div>
+            </div>
+        </div>
+    </header>
+    <section id="main" class="wrapper clearfix">
+        <div id="infoDiv">
+            <div id="doctorInfo" class="infoBox" style="display:none">
+                <h4>Overall stats</h4>
+                <div class="loadingMessage">Gathering data...</div>
+                <div id="doctorInfo-patientHealthIndex" class="name-and-healthbox clearfix">
+                </div>
+                <div id="doctorInfo-countyHealthIndex" class="name-and-healthbox clearfix">
+                </div>
+                <h4>Patient stats</h4>
+                <div class="loadingMessage">Gathering data...</div>
+                <table id="patientInfoTable"></table>
+            </div>
+            <div id="userInfo" class="infoBox">
+                <div id="userStats">
+                    <h4>Your Stress Dashboard</h4>
+                    <div class="loadingMessage">Gathering data...</div>
+                    <div id="userInfo-userHealthIndex" class="name-and-healthbox clearfix"></div>
+                    <div id="userInfo-countyHealthIndex" class="name-and-healthbox clearfix"></div>
+                    <div id="userUnfo-detailStats">
+                        <div id="heartRateTable" class="chartStyle"></div>
+                    </div>
+                </div>
+                <div id="doctorListStats">
+                    <h4>Doctors in your county</h4>
+                    <div class="loadingMessage">Gathering data...</div>
+                    <ul class="countyDoctorList"></ul>
+                </div>
+            </div>
+        </div>
+        <div id="map"
+             ng-app="healthApp"
+             ng-controller="homeController"
+             ng-init="init()">
+            <div id="dataStats">
+                <ul>
+                    <li><span class="statsLabel">Bands:</span><span id="bandsStats">0</span></li>
+                    <li><span class="statsLabel">Doctors:</span><span id="doctorsStats">0</span></li>
+                    <li><span class="statsLabel">Health Reports:</span><span id="healthReportsStats">0</span></li>
+                </ul>
+            </div>
+            <div id="mapContainer">
+                <d3-host val="countyData">
+                    <svg id="usMap"></svg>
+                </d3-host>
+            </div>
+        </div>
+    </section>
+    <footer></footer>
+        
+    <script src="/Scripts/jquery-2.2.0.js"></script>
+    <script src="/Scripts/angular.js"></script>
+    <script src="/Scripts/d3/d3.js"></script>
+
+    <!--License for topojson is here: https://github.com/mbostock/topojson/blob/master/LICENSE -->
+    <!--Script obtained via release https://github.com/mbostock/topojson/releases/tag/v1.6.22 -->
+    <!--These license terms also cover the block data contained in us-10m.json, which drives the map -->
+    <!--Block data obtained from topo.js samples https://github.com/mbostock/topojson/tree/master/examples -->
+    <script src="/Scripts/topojson.js"></script>
+
+    <script src="/Scripts/jqplot/excanvas.js"></script>
+    <script src="/Scripts/jqplot/jquery.jqplot.js"></script>
+    <script src="/Scripts/jqplot/plugins/jqplot.canvasAxisLabelRenderer.js"></script>
+    <script src="/Scripts/jqplot/plugins/jqplot.canvasTextRenderer.js"></script>
+    <script src="/Scripts/jqplot/plugins/jqplot.canvasAxisTickRenderer.js"></script>
+    <script src="/Scripts/jqplot/plugins/jqplot.dateAxisRenderer.js"></script>
+    <script src="/Scripts/api.js"></script>
+    <script src="/Scripts/healthmetrics.js"></script>
+    <script>
+        $(function(){
+            mapApp.initialize();
+        });
+    </script>
+</body>
+</html>

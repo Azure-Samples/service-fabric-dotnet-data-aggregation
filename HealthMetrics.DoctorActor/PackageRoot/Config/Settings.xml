@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Settings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+   <Section Name="DoctorActorServiceReplicatorConfig">
+      <Parameter Name="ReplicatorEndpoint" Value="DoctorActorServiceReplicatorEndpoint" />
+      <Parameter Name="BatchAcknowledgementInterval" Value="0.005" />
+   </Section>
+   <Section Name="DoctorActorServiceReplicatorSecurityConfig">
+      <Parameter Name="CredentialType" Value="None" />
+   </Section>
+   <Section Name="HealthMetrics.DoctorActor.Settings">
+      <Parameter Name="CountyServiceInstanceName" Value="HealthMetrics.CountyService" />
+      <Parameter Name="BandActorServiceInstanceName" Value="BandActorService" />
+   </Section>
+   <Section Name="HealthIndexCalculator.Settings">
+      <Parameter Name="ScoreCalculationMode" Value="" MustOverride="true" />
+   </Section>
+</Settings>

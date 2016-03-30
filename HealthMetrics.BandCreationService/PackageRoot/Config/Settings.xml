@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Settings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+  <Section Name="HealthMetrics.BandCreationService.Settings">
+    <Parameter Name="BandActorServiceName" Value="BandActorService" />
+    <Parameter Name="DoctorActorServiceName" Value="DoctorActorService" />    
+    <Parameter Name="NumberOfCreationThreads" Value="" MustOverride="true"/>
+    <Parameter Name="MaxBandsToCreatePerServiceInstance" Value="" MustOverride="true" />
+    <Parameter Name="CountyFileName" Value="HealthMetrics.Common.csv" />
+    <Parameter Name="PeopleFileName" Value="Names.csv" />
+    <Parameter Name="BaseDoctorsPerCounty" Value="2" />
+    <Parameter Name="DoctorsPerPopulation" Value="1" />
+    <Parameter Name="PopulationFactor" Value="20000" />
+    <Parameter Name="GenerateKnownPeople" Value="" MustOverride="true"/>
+    <Parameter Name="VerifyKnownPeople" Value="true" />
+    <Parameter Name="KnownPatientName" Value="Scott Hanselman" />
+    <Parameter Name="KnownDoctorName" Value="Lilian Rivera" />
+    <Parameter Name="KnownPatientId" Value="" MustOverride="true" />
+    <Parameter Name="KnownDoctorId" Value="" MustOverride="true" />
+    <Parameter Name="KnownCountyIdIndex" Value="2231" />
+  </Section>
+</Settings>
+
+

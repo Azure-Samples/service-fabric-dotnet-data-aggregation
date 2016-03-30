@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Settings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+  <Section Name="HealthMetrics.CountyService.Settings">
+    <Parameter Name="UpdateFrequency" Value="00:00:10" />
+    <Parameter Name="NationalServiceName" Value="HealthMetrics.NationalService" />
+  </Section>
+  <Section Name="HealthIndexCalculator.Settings">
+    <Parameter Name="ScoreCalculationMode" Value="" MustOverride="true"/>
+  </Section>
+  <Section Name="ReplicatorConfig">
+    <Parameter Name="MaxCopyQueueSize" Value="4096" />
+    <Parameter Name="MaxPrimaryReplicationQueueSize" Value="8192" />
+    <Parameter Name="MaxSecondaryReplicationQueueSize" Value="4096" />
+  </Section>
+  <Section Name="ReplicatorSecurityConfig" />
+</Settings>

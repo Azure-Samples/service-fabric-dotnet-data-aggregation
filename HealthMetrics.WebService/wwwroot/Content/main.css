@@ -1,0 +1,271 @@
+﻿body {
+    margin: 0;
+    padding: 0;
+    background: #515151;
+    color: #eee;
+    font: 14px/1.2 "Segoe UI Light","Segoe WP Light","Segoe UI","Segoe WP",Tahoma,Arial,sans-serif;
+}
+
+.clearfix::before, .clearfix::after {
+    content: " ";
+    display: block;
+    height: 0;
+    overflow: hidden;
+}
+
+.clearfix::after {
+    clear: both;
+}
+
+.clearfix::before, .clearfix::after {
+    content: " ";
+    display: block;
+    height: 0;
+    overflow: hidden;
+}
+
+.wrapper {
+    clear: both;
+    display: block;
+    margin: 0 auto;
+    width: 95%;
+}
+
+
+
+header {
+    background: #1a1a1a;
+}
+
+    header .header-content {
+        padding-top: 10px;
+    }
+
+    header .header-title {
+        float: left;
+    }
+
+        header .header-title h2 {
+            font-size: 24px;
+            font-weight: 100;
+            color: #FFF;
+            margin: 0;
+        }
+
+        header .header-title h1 {
+            font-size: 48px;
+            font-weight: 100;
+            color: #FF8A00;
+            margin: 0 0 20px 0;
+        }
+
+    header .header-login {
+        float: right;
+        margin-top: 35px;
+        line-height: 20px;
+    }
+
+        header .header-login h3 {
+            margin: 0;
+            padding: 0;
+        }
+
+        header .header-login .login-links {
+            float: left;
+            text-align: right;
+            padding: 0 10px 0 0;
+            height: 50px;
+            border-right: 1px solid #CCC;
+        }
+
+            header .header-login .login-links a {
+                display: block;
+                color: #89c402;
+            }
+
+        header .header-login .login-user {
+            float: left;
+            margin: 0 0 0 10px;
+        }
+
+
+section#main {
+    margin: 20px auto;
+}
+
+footer {
+    border-top: 1px solid #333;
+}
+
+#dataStats {
+    text-align: center;
+    margin: 0 0 10px 0;
+}
+
+    #dataStats ul {
+        margin: 0;
+        padding: 0;
+    }
+
+        #dataStats ul li {
+            list-style: none;
+            display: inline;
+            margin: 0 10px;
+            padding: 0;
+            font-size: 24px;
+        }
+
+    #dataStats span {
+        font-weight: bold;
+        color: #89c402;
+    }
+
+        #dataStats span.statsLabel {
+            margin-right: 10px;
+            font-weight: normal;
+            color: #EEE;
+        }
+
+#map {
+    padding: 30px 0 0 20px;
+}
+
+#infoDiv {
+    float: left;
+}
+
+#map h4 {
+    text-align: center;
+    margin: 5px;
+}
+
+#usMap {
+
+}
+
+#colorLegend {
+    width: 500px;
+    height: 20px;
+    margin: 20px auto;
+    background-color: #000;
+}
+
+#infoDiv {
+    border-right: 1px solid #333;
+    width: 300px;
+    min-height: 600px;
+    padding: 10px;
+}
+
+.loadingMessage {
+    margin: 10px auto;
+    font-style: italic;
+}
+
+.healthBox {
+    width: 25px;
+    height: 20px;
+    border: 1px solid #DDD;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 20px;
+    color: black;
+}
+
+.healthBox-black {
+    width: 25px;
+    height: 20px;
+    border: 1px solid #DDD;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 20px;
+    color: white;
+}
+
+.countyDoctorList {
+    list-style-type: none;
+}
+
+    .countyDoctorList li {
+        margin-bottom: 5px;
+    }
+
+.name-and-healthbox span {
+    float: left;
+    margin: 0 0 0 10px;
+    padding: 0;
+}
+
+.name-and-healthbox .healthBox {
+    float: left;
+}
+
+.name-and-healthbox .healthBox-black {
+    float: left;
+}
+
+
+.infoBox h4 {
+    font-size: 16px;
+    background: #111;
+    padding: 4px;
+}
+
+#userInfo h4 {
+    color: #FF8A00;
+}
+
+#userStats #userUnfo-detailStats {
+    margin-top: 10px;
+}
+
+#userStats .name-and-healthbox span {
+    font-weight: bold;
+}
+
+#userStats .chartStyle {
+    height: 150px;
+    width: 300px;
+    margin: 0;
+}
+
+#userStats .name-and-healthbox {
+    margin-bottom: 5px;
+}
+
+#doctorListStats {
+    min-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#doctorInfo h4 {
+    color: #26C8FF;
+}
+
+#doctorInfo .name-and-healthbox {
+    margin: 5px 0;
+}
+
+    #doctorInfo .name-and-healthbox span {
+        font-weight: bold;
+    }
+
+#doctorInfo #patientInfoTable {
+    margin-top: 20px;
+}
+
+    #doctorInfo #patientInfoTable td {
+        padding: 2px 5px;
+        max-width: 160px;
+        overflow: hidden;
+    }
+
+path {
+    stroke: #fff;
+    stroke-width: .5px;
+}
+
+    path:hover {
+        fill: cyan;
+    }
