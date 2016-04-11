@@ -1,0 +1,83 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "HealthMetrics", "HealthMetricsApplication\HealthMetrics.sfproj", "{165C0D41-AFB4-49D1-A60A-5A35A22D5951}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMetrics.CountyService", "HealthMetrics.CountyService\HealthMetrics.CountyService.csproj", "{E942E745-587F-4FEB-B67E-92CCD79327CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMetrics.NationalService", "HealthMetrics.NationalService\HealthMetrics.NationalService.csproj", "{C1F3336A-ED57-4009-8E75-3C3686B5C81C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMetrics.Common", "HealthMetrics.Common\HealthMetrics.Common.csproj", "{666742E6-38AF-4012-A4A6-BCFBF28F29EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMetrics.WebService", "HealthMetrics.WebService\HealthMetrics.WebService.csproj", "{70441DB0-519F-49ED-BAD5-5835AAC60AF1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMetrics.BandCreationService", "HealthMetrics.BandCreationService\HealthMetrics.BandCreationService.csproj", "{ECE13121-9B78-4F90-8529-CE7DC9279C42}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMetrics.DoctorActor", "HealthMetrics.DoctorActor\HealthMetrics.DoctorActor.csproj", "{EEAD2EF9-3CD3-4C3B-93FE-09E309B1114D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMetrics.DoctorActor.Interfaces", "HealthMetrics.DoctorActor.Interfaces\HealthMetrics.DoctorActor.Interfaces.csproj", "{F945DAFD-5424-49CA-95F1-360970EA9E31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMetrics.BandActor", "HealthMetrics.BandActor\HealthMetrics.BandActor.csproj", "{B8B9A1E2-C158-4B6C-8FD2-86EAABE177BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMetrics.BandActor.Interfaces", "HealthMetrics.BandActor.Interfaces\HealthMetrics.BandActor.Interfaces.csproj", "{60FFAF07-B6D6-4F68-B7A4-156D72CCD05A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B59C2E2B-46C1-4271-B461-A0B60BA7D5BC}"
+	ProjectSection(SolutionItems) = preProject
+		Readme.md = Readme.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{165C0D41-AFB4-49D1-A60A-5A35A22D5951}.Debug|x64.ActiveCfg = Debug|x64
+		{165C0D41-AFB4-49D1-A60A-5A35A22D5951}.Debug|x64.Build.0 = Debug|x64
+		{165C0D41-AFB4-49D1-A60A-5A35A22D5951}.Debug|x64.Deploy.0 = Debug|x64
+		{165C0D41-AFB4-49D1-A60A-5A35A22D5951}.Release|x64.ActiveCfg = Release|x64
+		{165C0D41-AFB4-49D1-A60A-5A35A22D5951}.Release|x64.Build.0 = Release|x64
+		{165C0D41-AFB4-49D1-A60A-5A35A22D5951}.Release|x64.Deploy.0 = Release|x64
+		{E942E745-587F-4FEB-B67E-92CCD79327CA}.Debug|x64.ActiveCfg = Debug|x64
+		{E942E745-587F-4FEB-B67E-92CCD79327CA}.Debug|x64.Build.0 = Debug|x64
+		{E942E745-587F-4FEB-B67E-92CCD79327CA}.Release|x64.ActiveCfg = Release|x64
+		{E942E745-587F-4FEB-B67E-92CCD79327CA}.Release|x64.Build.0 = Release|x64
+		{C1F3336A-ED57-4009-8E75-3C3686B5C81C}.Debug|x64.ActiveCfg = Debug|x64
+		{C1F3336A-ED57-4009-8E75-3C3686B5C81C}.Debug|x64.Build.0 = Debug|x64
+		{C1F3336A-ED57-4009-8E75-3C3686B5C81C}.Release|x64.ActiveCfg = Release|x64
+		{C1F3336A-ED57-4009-8E75-3C3686B5C81C}.Release|x64.Build.0 = Release|x64
+		{666742E6-38AF-4012-A4A6-BCFBF28F29EE}.Debug|x64.ActiveCfg = Debug|x64
+		{666742E6-38AF-4012-A4A6-BCFBF28F29EE}.Debug|x64.Build.0 = Debug|x64
+		{666742E6-38AF-4012-A4A6-BCFBF28F29EE}.Release|x64.ActiveCfg = Release|x64
+		{666742E6-38AF-4012-A4A6-BCFBF28F29EE}.Release|x64.Build.0 = Release|x64
+		{70441DB0-519F-49ED-BAD5-5835AAC60AF1}.Debug|x64.ActiveCfg = Debug|x64
+		{70441DB0-519F-49ED-BAD5-5835AAC60AF1}.Debug|x64.Build.0 = Debug|x64
+		{70441DB0-519F-49ED-BAD5-5835AAC60AF1}.Release|x64.ActiveCfg = Release|x64
+		{70441DB0-519F-49ED-BAD5-5835AAC60AF1}.Release|x64.Build.0 = Release|x64
+		{ECE13121-9B78-4F90-8529-CE7DC9279C42}.Debug|x64.ActiveCfg = Debug|x64
+		{ECE13121-9B78-4F90-8529-CE7DC9279C42}.Debug|x64.Build.0 = Debug|x64
+		{ECE13121-9B78-4F90-8529-CE7DC9279C42}.Release|x64.ActiveCfg = Release|x64
+		{ECE13121-9B78-4F90-8529-CE7DC9279C42}.Release|x64.Build.0 = Release|x64
+		{EEAD2EF9-3CD3-4C3B-93FE-09E309B1114D}.Debug|x64.ActiveCfg = Debug|x64
+		{EEAD2EF9-3CD3-4C3B-93FE-09E309B1114D}.Debug|x64.Build.0 = Debug|x64
+		{EEAD2EF9-3CD3-4C3B-93FE-09E309B1114D}.Release|x64.ActiveCfg = Release|x64
+		{EEAD2EF9-3CD3-4C3B-93FE-09E309B1114D}.Release|x64.Build.0 = Release|x64
+		{F945DAFD-5424-49CA-95F1-360970EA9E31}.Debug|x64.ActiveCfg = Debug|x64
+		{F945DAFD-5424-49CA-95F1-360970EA9E31}.Debug|x64.Build.0 = Debug|x64
+		{F945DAFD-5424-49CA-95F1-360970EA9E31}.Release|x64.ActiveCfg = Release|x64
+		{F945DAFD-5424-49CA-95F1-360970EA9E31}.Release|x64.Build.0 = Release|x64
+		{B8B9A1E2-C158-4B6C-8FD2-86EAABE177BC}.Debug|x64.ActiveCfg = Debug|x64
+		{B8B9A1E2-C158-4B6C-8FD2-86EAABE177BC}.Debug|x64.Build.0 = Debug|x64
+		{B8B9A1E2-C158-4B6C-8FD2-86EAABE177BC}.Release|x64.ActiveCfg = Release|x64
+		{B8B9A1E2-C158-4B6C-8FD2-86EAABE177BC}.Release|x64.Build.0 = Release|x64
+		{60FFAF07-B6D6-4F68-B7A4-156D72CCD05A}.Debug|x64.ActiveCfg = Debug|x64
+		{60FFAF07-B6D6-4F68-B7A4-156D72CCD05A}.Debug|x64.Build.0 = Debug|x64
+		{60FFAF07-B6D6-4F68-B7A4-156D72CCD05A}.Release|x64.ActiveCfg = Release|x64
+		{60FFAF07-B6D6-4F68-B7A4-156D72CCD05A}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
