@@ -4,7 +4,7 @@ platforms: dotnet
 author: masnider
 ---
 
-# service-fabric-dotnet-data-aggregation
+# Service Fabric Data Aggregation Sample (aka HealthMetrics)
 Learn about large-scale data aggregation and management of large volumes of end-user devices with Service Fabric.
 ## Running this sample
 Just open the solution in Visual Studio and hit F5, or right click on the Service Fabric application project and Publish the application to the cluster of your choice.
