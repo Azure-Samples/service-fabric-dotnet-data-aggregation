@@ -27,6 +27,10 @@ namespace HealthMetrics.BandActor
         private CryptoRandom random = new CryptoRandom();
         private HealthIndexCalculator indexCalculator;
 
+        public BandActor(ActorService actorService, ActorId actorId)
+            : base(actorService, actorId)
+        { }
+
         public async Task<BandDataViewModel> GetBandDataAsync()
         {
             try

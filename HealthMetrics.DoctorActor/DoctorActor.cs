@@ -5,6 +5,14 @@
 
 namespace HealthMetrics.DoctorActor
 {
+    using HealthMetrics.Common;
+    using HealthMetrics.DoctorActor.Interfaces;
+    using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Data;
+    using Microsoft.ServiceFabric.Services.Client;
+    using Microsoft.ServiceFabric.Services.Communication.Client;
+    using Newtonsoft.Json;
     using System;
     using System.Collections.ObjectModel;
     using System.Fabric;
@@ -13,13 +21,6 @@ namespace HealthMetrics.DoctorActor
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
-    using HealthMetrics.Common;
-    using HealthMetrics.DoctorActor.Interfaces;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Data;
-    using Microsoft.ServiceFabric.Services.Client;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
-    using Newtonsoft.Json;
 
     [StatePersistence(StatePersistence.Persisted)]
     internal class DoctorActor : Actor, IDoctorActor, IRemindable
@@ -35,6 +36,10 @@ namespace HealthMetrics.DoctorActor
             "DoctorCommunicationEndpoint",
             TimeSpan.FromSeconds(10),
             TimeSpan.FromSeconds(3));
+
+        public DoctorActor(ActorService actorService, ActorId actorId)
+            : base(actorService, actorId)
+        { }
 
         public async Task NewAsync(string name, CountyRecord countyRecord)
         {

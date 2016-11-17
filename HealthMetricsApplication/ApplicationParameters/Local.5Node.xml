@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="fabric:/HealthMetrics" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+  <Parameters>
+    <Parameter Name="WebService_InstanceCount" Value="1" />
+    <Parameter Name="BandActorService_PartitionCount" Value="2" />
+    <Parameter Name="DoctorActorService_PartitionCount" Value="2" />
+    <Parameter Name="CountyService_PartitionCount" Value="2" />
+    <Parameter Name="MaxBandsToCreatePerServiceInstance" Value="300" />
+    <Parameter Name="GenerateKnownPeople" Value="false" />
+  </Parameters>
+</Application>

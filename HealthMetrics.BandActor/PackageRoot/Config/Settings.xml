@@ -1,16 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Settings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/2011/01/fabric">
-   <Section Name="BandActorServiceReplicatorConfig">
-      <Parameter Name="ReplicatorEndpoint" Value="BandActorServiceReplicatorEndpoint" />
-      <Parameter Name="BatchAcknowledgementInterval" Value="0.005" />
-   </Section>
-   <Section Name="BandActorServiceReplicatorSecurityConfig">
-      <Parameter Name="CredentialType" Value="None" />
-   </Section>
-   <Section Name="HealthMetrics.BandActor.Settings">
-      <Parameter Name="DoctorActorServiceInstanceName" Value="DoctorActorService" />
-   </Section>
-   <Section Name="HealthIndexCalculator.Settings">
-      <Parameter Name="ScoreCalculationMode" Value="" MustOverride="true" />
-   </Section>
+  <Section Name="BandActorServiceReplicatorConfig">
+    <Parameter Name="ReplicatorEndpoint" Value="BandActorServiceReplicatorEndpoint" />
+    <Parameter Name="BatchAcknowledgementInterval" Value="0.005" />
+  </Section>
+  <Section Name="BandActorServiceReplicatorSecurityConfig">
+    <Parameter Name="CredentialType" Value="None" />
+  </Section>
+  <Section Name="HealthMetrics.BandActor.Settings">
+    <Parameter Name="DoctorActorServiceInstanceName" Value="DoctorActorService" />
+  </Section>
+  <Section Name="HealthIndexCalculator.Settings">
+    <Parameter Name="ScoreCalculationMode" Value="" MustOverride="true" />
+  </Section>
 </Settings>

@@ -1,11 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Service Fabric Tools\Microsoft.VisualStudio.Azure.Fabric.ApplicationProject.props" />
+  <Import Project="..\packages\Microsoft.VisualStudio.Azure.Fabric.MSBuild.1.3.0\build\Microsoft.VisualStudio.Azure.Fabric.Application.props" Condition="Exists('..\packages\Microsoft.VisualStudio.Azure.Fabric.MSBuild.1.3.0\build\Microsoft.VisualStudio.Azure.Fabric.Application.props')" />
   <PropertyGroup Label="Globals">
     <ProjectGuid>165c0d41-afb4-49d1-a60a-5a35a22d5951</ProjectGuid>
-    <ProjectVersion>1.0</ProjectVersion>
+    <ProjectVersion>1.3</ProjectVersion>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
   </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
   <ItemGroup>
     <None Include="Scripts\Deploy-FabricApplication.ps1" />
   </ItemGroup>
@@ -20,9 +30,17 @@
   <ItemGroup>
     <Content Include="ApplicationPackageRoot\ApplicationManifest.xml" />
     <Content Include="ApplicationParameters\Cloud.xml" />
-    <Content Include="ApplicationParameters\Local.xml" />
+    <Content Include="ApplicationParameters\Local.1Node.xml" />
+    <Content Include="ApplicationParameters\Local.5Node.xml" />
+    <Content Include="packages.config" />
     <Content Include="PublishProfiles\Cloud.xml" />
-    <Content Include="PublishProfiles\Local.xml" />
+    <Content Include="PublishProfiles\Local.1Node.xml" />
+    <Content Include="PublishProfiles\Local.5Node.xml" />
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Service Fabric Tools\Microsoft.VisualStudio.Azure.Fabric.ApplicationProject.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+  <PropertyGroup>
+    <ApplicationProjectTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Service Fabric Tools\Microsoft.VisualStudio.Azure.Fabric.ApplicationProject.targets</ApplicationProjectTargetsPath>
+  </PropertyGroup>
+  <Import Project="$(ApplicationProjectTargetsPath)" Condition="Exists('$(ApplicationProjectTargetsPath)')" />
+  <Import Project="..\packages\Microsoft.VisualStudio.Azure.Fabric.MSBuild.1.3.0\build\Microsoft.VisualStudio.Azure.Fabric.Application.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.Azure.Fabric.MSBuild.1.3.0\build\Microsoft.VisualStudio.Azure.Fabric.Application.targets')" />
 </Project>

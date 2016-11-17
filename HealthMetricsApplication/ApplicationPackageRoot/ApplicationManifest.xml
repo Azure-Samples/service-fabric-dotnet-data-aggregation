@@ -1,130 +1,130 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="HealthMetrics" ApplicationTypeVersion="1.0.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
-   <Parameters>
-      <Parameter Name="DoctorActorService_PartitionCount" DefaultValue="1" />
-      <Parameter Name="DoctorActorService_MinReplicaSetSize" DefaultValue="3" />
-      <Parameter Name="DoctorActorService_TargetReplicaSetSize" DefaultValue="3" />
-      <Parameter Name="BandActorService_PartitionCount" DefaultValue="1" />
-      <Parameter Name="BandActorService_MinReplicaSetSize" DefaultValue="3" />
-      <Parameter Name="BandActorService_TargetReplicaSetSize" DefaultValue="3" />
-      <Parameter Name="CountyService_PartitionCount" DefaultValue="1" />
-      <Parameter Name="WebService_InstanceCount" DefaultValue="-1" />
-      <Parameter Name="BandCreationService_InstanceCount" DefaultValue="1" />
-      <Parameter Name="ScoreCalculationMode" DefaultValue="Mode1" />
-      <Parameter Name="WebTierConstraint" DefaultValue="" />
-      <Parameter Name="LoadTierConstraint" DefaultValue="" />
-      <Parameter Name="BackendTierConstraint" DefaultValue="" />
-      <Parameter Name="CreationServiceParallelThreads" DefaultValue="4" />
-      <Parameter Name="MaxBandsToCreatePerServiceInstance" DefaultValue="6000" />
-      <Parameter Name="GenerateKnownPeople" DefaultValue="true" />
-      <Parameter Name="KnownPatientId" DefaultValue="0e83c959-657d-ea06-0e2d-13f749d62229" />
-      <Parameter Name="KnownDoctorId" DefaultValue="342827c7-bd78-d825-f312-2eae41f8ea45" />
-   </Parameters>
-   <ServiceManifestImport>
-      <ServiceManifestRef ServiceManifestName="HealthMetrics.DoctorActorPkg" ServiceManifestVersion="1.0.0" />
-      <ConfigOverrides>
-         <ConfigOverride Name="Config">
-            <Settings>
-               <Section Name="HealthIndexCalculator.Settings">
-                  <Parameter Name="ScoreCalculationMode" Value="[ScoreCalculationMode]" />
-               </Section>
-            </Settings>
-         </ConfigOverride>
-      </ConfigOverrides>
-   </ServiceManifestImport>
-   <ServiceManifestImport>
-      <ServiceManifestRef ServiceManifestName="HealthMetrics.BandActorPkg" ServiceManifestVersion="1.0.0" />
-      <ConfigOverrides>
-         <ConfigOverride Name="Config">
-            <Settings>
-               <Section Name="HealthIndexCalculator.Settings">
-                  <Parameter Name="ScoreCalculationMode" Value="[ScoreCalculationMode]" />
-               </Section>
-            </Settings>
-         </ConfigOverride>
-      </ConfigOverrides>
-   </ServiceManifestImport>
-   <ServiceManifestImport>
-      <ServiceManifestRef ServiceManifestName="HealthMetrics.WebServicePkg" ServiceManifestVersion="1.0.0.0" />
-      <ConfigOverrides>
-         <ConfigOverride Name="Config">
-            <Settings>
-               <Section Name="HealthMetrics.WebService.Settings">
-                  <Parameter Name="GenerateKnownPeople" Value="[GenerateKnownPeople]" />
-                  <Parameter Name="KnownPatientId" Value="[KnownPatientId]" />
-                  <Parameter Name="KnownDoctorId" Value="[KnownDoctorId]" />
-               </Section>
-            </Settings>
-         </ConfigOverride>
-      </ConfigOverrides>
-   </ServiceManifestImport>
-   <ServiceManifestImport>
-      <ServiceManifestRef ServiceManifestName="HealthMetrics.NationalServicePkg" ServiceManifestVersion="1.0.0.0" />
-   </ServiceManifestImport>
-   <ServiceManifestImport>
-      <ServiceManifestRef ServiceManifestName="HealthMetrics.CountyServicePkg" ServiceManifestVersion="1.0.0.0" />
-      <ConfigOverrides>
-         <ConfigOverride Name="Config">
-            <Settings>
-               <Section Name="HealthIndexCalculator.Settings">
-                  <Parameter Name="ScoreCalculationMode" Value="[ScoreCalculationMode]" />
-               </Section>
-            </Settings>
-         </ConfigOverride>
-      </ConfigOverrides>
-   </ServiceManifestImport>
-   <ServiceManifestImport>
-      <ServiceManifestRef ServiceManifestName="HealthMetrics.BandCreationServicePkg" ServiceManifestVersion="1.0.0.0" />
-      <ConfigOverrides>
-         <ConfigOverride Name="Config">
-            <Settings>
-               <Section Name="HealthMetrics.BandCreationService.Settings">
-                  <Parameter Name="NumberOfCreationThreads" Value="[CreationServiceParallelThreads]" />
-                  <Parameter Name="MaxBandsToCreatePerServiceInstance" Value="[MaxBandsToCreatePerServiceInstance]" />
-                  <Parameter Name="GenerateKnownPeople" Value="[GenerateKnownPeople]" />
-                  <Parameter Name="KnownPatientId" Value="[KnownPatientId]" />
-                  <Parameter Name="KnownDoctorId" Value="[KnownDoctorId]" />
-               </Section>
-            </Settings>
-         </ConfigOverride>
-      </ConfigOverrides>
-   </ServiceManifestImport>
-   <DefaultServices>
-      <Service Name="DoctorActorService" GeneratedIdRef="9804c429-d2e3-400a-a154-40fd97b7c5ed|Persisted">
-         <StatefulService ServiceTypeName="DoctorActorServiceType" TargetReplicaSetSize="[DoctorActorService_TargetReplicaSetSize]" MinReplicaSetSize="[DoctorActorService_MinReplicaSetSize]">
-            <UniformInt64Partition PartitionCount="[DoctorActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
-            <PlacementConstraints>[BackendTierConstraint]</PlacementConstraints>
-         </StatefulService>
-      </Service>
-      <Service Name="BandActorService" GeneratedIdRef="560b251b-b497-4e1b-bb73-7e2510895a9c|None">
-         <StatefulService ServiceTypeName="BandActorServiceType" TargetReplicaSetSize="[BandActorService_TargetReplicaSetSize]" MinReplicaSetSize="[BandActorService_MinReplicaSetSize]">
-            <UniformInt64Partition PartitionCount="[BandActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
-            <PlacementConstraints>[BackendTierConstraint]</PlacementConstraints>
-         </StatefulService>
-      </Service>
-      <Service Name="HealthMetrics.WebService">
-         <StatelessService ServiceTypeName="HealthMetrics.WebServiceType" InstanceCount="[WebService_InstanceCount]">
-            <SingletonPartition />
-            <PlacementConstraints>[WebTierConstraint]</PlacementConstraints>
-         </StatelessService>
-      </Service>
-      <Service Name="HealthMetrics.NationalService">
-         <StatefulService ServiceTypeName="HealthMetrics.NationalServiceType" TargetReplicaSetSize="3" MinReplicaSetSize="3">
-            <SingletonPartition />
-            <PlacementConstraints>[BackendTierConstraint]</PlacementConstraints>
-         </StatefulService>
-      </Service>
-      <Service Name="HealthMetrics.CountyService">
-         <StatefulService ServiceTypeName="HealthMetrics.CountyServiceType" TargetReplicaSetSize="3" MinReplicaSetSize="3">
-            <UniformInt64Partition PartitionCount="[CountyService_PartitionCount]" LowKey="0" HighKey="57000" />
-            <PlacementConstraints>[BackendTierConstraint]</PlacementConstraints>
-         </StatefulService>
-      </Service>
-      <Service Name="HealthMetrics.BandCreationService">
-         <StatelessService ServiceTypeName="HealthMetrics.BandCreationServiceType" InstanceCount="[BandCreationService_InstanceCount]">
-            <SingletonPartition />
-            <PlacementConstraints>[LoadTierConstraint]</PlacementConstraints>
-         </StatelessService>
-      </Service>
-   </DefaultServices>
+  <Parameters>
+    <Parameter Name="DoctorActorService_PartitionCount" DefaultValue="1" />
+    <Parameter Name="DoctorActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="DoctorActorService_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="BandActorService_PartitionCount" DefaultValue="1" />
+    <Parameter Name="BandActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="BandActorService_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="CountyService_PartitionCount" DefaultValue="1" />
+    <Parameter Name="WebService_InstanceCount" DefaultValue="-1" />
+    <Parameter Name="BandCreationService_InstanceCount" DefaultValue="1" />
+    <Parameter Name="ScoreCalculationMode" DefaultValue="Mode1" />
+    <Parameter Name="WebTierConstraint" DefaultValue="" />
+    <Parameter Name="LoadTierConstraint" DefaultValue="" />
+    <Parameter Name="BackendTierConstraint" DefaultValue="" />
+    <Parameter Name="CreationServiceParallelThreads" DefaultValue="4" />
+    <Parameter Name="MaxBandsToCreatePerServiceInstance" DefaultValue="6000" />
+    <Parameter Name="GenerateKnownPeople" DefaultValue="true" />
+    <Parameter Name="KnownPatientId" DefaultValue="0e83c959-657d-ea06-0e2d-13f749d62229" />
+    <Parameter Name="KnownDoctorId" DefaultValue="342827c7-bd78-d825-f312-2eae41f8ea45" />
+  </Parameters>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="HealthMetrics.DoctorActorPkg" ServiceManifestVersion="1.0.0" />
+    <ConfigOverrides>
+      <ConfigOverride Name="Config">
+        <Settings>
+          <Section Name="HealthIndexCalculator.Settings">
+            <Parameter Name="ScoreCalculationMode" Value="[ScoreCalculationMode]" />
+          </Section>
+        </Settings>
+      </ConfigOverride>
+    </ConfigOverrides>
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="HealthMetrics.BandActorPkg" ServiceManifestVersion="1.0.0" />
+    <ConfigOverrides>
+      <ConfigOverride Name="Config">
+        <Settings>
+          <Section Name="HealthIndexCalculator.Settings">
+            <Parameter Name="ScoreCalculationMode" Value="[ScoreCalculationMode]" />
+          </Section>
+        </Settings>
+      </ConfigOverride>
+    </ConfigOverrides>
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="HealthMetrics.WebServicePkg" ServiceManifestVersion="1.0.0.0" />
+    <ConfigOverrides>
+      <ConfigOverride Name="Config">
+        <Settings>
+          <Section Name="HealthMetrics.WebService.Settings">
+            <Parameter Name="GenerateKnownPeople" Value="[GenerateKnownPeople]" />
+            <Parameter Name="KnownPatientId" Value="[KnownPatientId]" />
+            <Parameter Name="KnownDoctorId" Value="[KnownDoctorId]" />
+          </Section>
+        </Settings>
+      </ConfigOverride>
+    </ConfigOverrides>
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="HealthMetrics.NationalServicePkg" ServiceManifestVersion="1.0.0.0" />
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="HealthMetrics.CountyServicePkg" ServiceManifestVersion="1.0.0.0" />
+    <ConfigOverrides>
+      <ConfigOverride Name="Config">
+        <Settings>
+          <Section Name="HealthIndexCalculator.Settings">
+            <Parameter Name="ScoreCalculationMode" Value="[ScoreCalculationMode]" />
+          </Section>
+        </Settings>
+      </ConfigOverride>
+    </ConfigOverrides>
+  </ServiceManifestImport>
+  <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="HealthMetrics.BandCreationServicePkg" ServiceManifestVersion="1.0.0.0" />
+    <ConfigOverrides>
+      <ConfigOverride Name="Config">
+        <Settings>
+          <Section Name="HealthMetrics.BandCreationService.Settings">
+            <Parameter Name="NumberOfCreationThreads" Value="[CreationServiceParallelThreads]" />
+            <Parameter Name="MaxBandsToCreatePerServiceInstance" Value="[MaxBandsToCreatePerServiceInstance]" />
+            <Parameter Name="GenerateKnownPeople" Value="[GenerateKnownPeople]" />
+            <Parameter Name="KnownPatientId" Value="[KnownPatientId]" />
+            <Parameter Name="KnownDoctorId" Value="[KnownDoctorId]" />
+          </Section>
+        </Settings>
+      </ConfigOverride>
+    </ConfigOverrides>
+  </ServiceManifestImport>
+  <DefaultServices>
+    <Service Name="DoctorActorService" GeneratedIdRef="9804c429-d2e3-400a-a154-40fd97b7c5ed|Persisted">
+      <StatefulService ServiceTypeName="DoctorActorServiceType" TargetReplicaSetSize="[DoctorActorService_TargetReplicaSetSize]" MinReplicaSetSize="[DoctorActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[DoctorActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+        <PlacementConstraints>[BackendTierConstraint]</PlacementConstraints>
+      </StatefulService>
+    </Service>
+    <Service Name="BandActorService" GeneratedIdRef="560b251b-b497-4e1b-bb73-7e2510895a9c|None">
+      <StatefulService ServiceTypeName="BandActorServiceType" TargetReplicaSetSize="[BandActorService_TargetReplicaSetSize]" MinReplicaSetSize="[BandActorService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[BandActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+        <PlacementConstraints>[BackendTierConstraint]</PlacementConstraints>
+      </StatefulService>
+    </Service>
+    <Service Name="HealthMetrics.WebService">
+      <StatelessService ServiceTypeName="HealthMetrics.WebServiceType" InstanceCount="[WebService_InstanceCount]">
+        <SingletonPartition />
+        <PlacementConstraints>[WebTierConstraint]</PlacementConstraints>
+      </StatelessService>
+    </Service>
+    <Service Name="HealthMetrics.NationalService">
+      <StatefulService ServiceTypeName="HealthMetrics.NationalServiceType" TargetReplicaSetSize="3" MinReplicaSetSize="3">
+        <SingletonPartition />
+        <PlacementConstraints>[BackendTierConstraint]</PlacementConstraints>
+      </StatefulService>
+    </Service>
+    <Service Name="HealthMetrics.CountyService">
+      <StatefulService ServiceTypeName="HealthMetrics.CountyServiceType" TargetReplicaSetSize="3" MinReplicaSetSize="3">
+        <UniformInt64Partition PartitionCount="[CountyService_PartitionCount]" LowKey="0" HighKey="57000" />
+        <PlacementConstraints>[BackendTierConstraint]</PlacementConstraints>
+      </StatefulService>
+    </Service>
+    <Service Name="HealthMetrics.BandCreationService">
+      <StatelessService ServiceTypeName="HealthMetrics.BandCreationServiceType" InstanceCount="[BandCreationService_InstanceCount]">
+        <SingletonPartition />
+        <PlacementConstraints>[LoadTierConstraint]</PlacementConstraints>
+      </StatelessService>
+    </Service>
+  </DefaultServices>
 </ApplicationManifest>
