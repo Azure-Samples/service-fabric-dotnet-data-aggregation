@@ -7,7 +7,7 @@ author: masnider
 # Service Fabric Data Aggregation Sample (aka HealthMetrics)
 Learn about large-scale data aggregation and management of large volumes of end-user devices with Service Fabric.
 ## Running this sample
-Just open the solution in Visual Studio and hit F5, or right click on the Service Fabric application project and Publish the application to the cluster of your choice.
+Just open the solution in an instance of Visual Studio run as administrator and hit F5, or right click on the Service Fabric application project and Publish the application to the cluster of your choice.
 
 ## Deploy this sample to Azure
 Right click on the Application project (HealthMetrics) and select Publish. Then select the azure cluster of your choice (or create a new profile)
