@@ -5,12 +5,12 @@
 
 namespace System.Net.Http
 {
-    using System.Fabric;
-    using System.Threading;
-    using System.Threading.Tasks;
     using HealthMetrics.Common;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
+    using System.Fabric;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     public static class HttpClientExtensions
     {

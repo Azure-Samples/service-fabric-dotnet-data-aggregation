@@ -5,14 +5,14 @@
 
 namespace HealthMetrics.NationalService
 {
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Web.Http;
     using HealthMetrics.Common;
     using HealthMetrics.NationalService.Models;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using System.Web.Http;
 
     /// <summary>
     /// Votes controller.

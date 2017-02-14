@@ -5,12 +5,12 @@
 
 namespace HealthMetrics.BandActor
 {
+    using HealthMetrics.BandActor.Interfaces;
+    using HealthMetrics.Common;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.Serialization;
-    using HealthMetrics.BandActor.Interfaces;
-    using HealthMetrics.Common;
 
     [DataContract]
     internal class BandActorState

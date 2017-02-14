@@ -5,10 +5,10 @@
 
 namespace HealthMetrics.WebService
 {
-    using System.Fabric;
-    using System.Web.Http;
     using HealthMetrics.WebService.Controllers;
     using Microsoft.Practices.Unity;
+    using System.Fabric;
+    using System.Web.Http;
     using Unity.WebApi;
 
     public static class UnityConfig

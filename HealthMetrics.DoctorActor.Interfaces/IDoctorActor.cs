@@ -5,10 +5,10 @@
 
 namespace HealthMetrics.DoctorActor.Interfaces
 {
-    using System;
-    using System.Threading.Tasks;
     using HealthMetrics.Common;
     using Microsoft.ServiceFabric.Actors;
+    using System;
+    using System.Threading.Tasks;
 
     public interface IDoctorActor : IActor
     {

@@ -5,9 +5,9 @@
 
 namespace HealthMetrics.NationalService
 {
-    using System.Web.Http;
     using Microsoft.Practices.Unity;
     using Microsoft.ServiceFabric.Data;
+    using System.Web.Http;
     using Unity.WebApi;
 
     public static class UnityConfig

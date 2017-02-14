@@ -5,9 +5,9 @@
 
 namespace HealthMetrics.DoctorActor
 {
+    using HealthMetrics.Common;
     using System;
     using System.Runtime.Serialization;
-    using HealthMetrics.Common;
 
     [DataContract]
     internal struct DoctorPatientState

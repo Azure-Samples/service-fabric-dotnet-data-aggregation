@@ -5,14 +5,14 @@
 
 namespace HealthMetrics.WebService
 {
-    using System;
-    using System.Diagnostics;
-    using System.Fabric;
-    using System.Web.Http;
     using Microsoft.Owin;
     using Microsoft.Owin.FileSystems;
     using Microsoft.Owin.StaticFiles;
     using Owin;
+    using System;
+    using System.Diagnostics;
+    using System.Fabric;
+    using System.Web.Http;
     using Web.Service;
 
     public class Startup : IOwinAppBuilder

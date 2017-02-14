@@ -5,6 +5,13 @@
 
 namespace HealthMetrics.BandCreationService
 {
+    using HealthMetrics.BandActor.Interfaces;
+    using HealthMetrics.Common;
+    using HealthMetrics.DoctorActor.Interfaces;
+    using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Client;
+    using Microsoft.ServiceFabric.Services.Communication.Client;
+    using Microsoft.ServiceFabric.Services.Runtime;
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
@@ -14,13 +21,6 @@ namespace HealthMetrics.BandCreationService
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using HealthMetrics.BandActor.Interfaces;
-    using HealthMetrics.Common;
-    using HealthMetrics.DoctorActor.Interfaces;
-    using Microsoft.ServiceFabric.Actors;
-    using Microsoft.ServiceFabric.Actors.Client;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
-    using Microsoft.ServiceFabric.Services.Runtime;
 
     public class Service : StatelessService
     {
@@ -60,7 +60,7 @@ namespace HealthMetrics.BandCreationService
             bag.Prepare();
 
             ServicePrimer primer = new ServicePrimer();
-            await primer.WaitForStatefulService(this.ActorServiceUri);
+            await primer.WaitForStatefulService(this.ActorServiceUri, cancellationToken);
 
             List<Task> tasks = new List<Task>();
 
@@ -87,7 +87,7 @@ namespace HealthMetrics.BandCreationService
             while (!cancellationToken.IsCancellationRequested && this.MaxBandsToCreatePerServiceInstance > 0)
             {
                 bool created = false;
-                while (!created)
+                while (!created && !cancellationToken.IsCancellationRequested)
                 {
                     ActorId bandActorId;
                     ActorId doctorActorId;
@@ -121,7 +121,7 @@ namespace HealthMetrics.BandCreationService
                 }
 
                 this.MaxBandsToCreatePerServiceInstance--;
-                await Task.Delay(100);
+                await Task.Delay(100, cancellationToken);
             }
         }
 
@@ -133,7 +133,7 @@ namespace HealthMetrics.BandCreationService
 
             KeyedCollection<string, ConfigurationProperty> serviceParameters = settings.Sections["HealthMetrics.BandCreationService.Settings"].Parameters;
 
-            while (true)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 ActorId bandActorId;
                 ActorId doctorActorId;
@@ -169,7 +169,7 @@ namespace HealthMetrics.BandCreationService
                         break;
                     }
 
-                    await Task.Delay(TimeSpan.FromMinutes(1));
+                    await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);
                 }
                 catch (Exception e)
                 {

@@ -5,10 +5,10 @@
 
 namespace HealthMetrics.CountyService
 {
-    using System.Web.Http;
     using HealthMetrics.Common;
     using Microsoft.Practices.Unity;
     using Microsoft.ServiceFabric.Data;
+    using System.Web.Http;
     using Unity.WebApi;
 
     public static class UnityConfig

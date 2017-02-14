@@ -5,11 +5,11 @@
 
 namespace HealthMetrics.NationalService
 {
-    using System.Collections.Generic;
-    using System.Fabric;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
+    using System.Collections.Generic;
+    using System.Fabric;
     using Web.Service;
 
     public class Service : StatefulService

@@ -5,10 +5,10 @@
 
 namespace HealthMetrics.DoctorActor
 {
+    using HealthMetrics.Common;
     using System;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
-    using HealthMetrics.Common;
 
     [DataContract]
     internal class DoctorActorState
