@@ -10,6 +10,7 @@ namespace HealthMetrics.Common
     using System.Fabric.Description;
     using System.Fabric.Query;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
 
     public class ServicePrimer
@@ -34,7 +35,7 @@ namespace HealthMetrics.Common
             }
         }
 
-        public async Task WaitForStatefulService(Uri serviceInstanceUri)
+        public async Task WaitForStatefulService(Uri serviceInstanceUri, CancellationToken token)
         {
             StatefulServiceDescription description =
                 await this.Client.ServiceManager.GetServiceDescriptionAsync(serviceInstanceUri) as StatefulServiceDescription;
@@ -42,13 +43,13 @@ namespace HealthMetrics.Common
             int targetTotalReplicas = description.TargetReplicaSetSize;
             if (description.PartitionSchemeDescription is UniformInt64RangePartitionSchemeDescription)
             {
-                targetTotalReplicas *= ((UniformInt64RangePartitionSchemeDescription) description.PartitionSchemeDescription).PartitionCount;
+                targetTotalReplicas *= ((UniformInt64RangePartitionSchemeDescription)description.PartitionSchemeDescription).PartitionCount;
             }
 
             ServicePartitionList partitions = await this.Client.QueryManager.GetPartitionListAsync(serviceInstanceUri);
             int replicaTotal = 0;
 
-            while (replicaTotal < targetTotalReplicas)
+            while (replicaTotal < targetTotalReplicas && !token.IsCancellationRequested)
             {
                 await Task.Delay(this.interval);
                 //ServiceEventSource.Current.ServiceMessage(this, "CountyService waiting for National Service to come up.");

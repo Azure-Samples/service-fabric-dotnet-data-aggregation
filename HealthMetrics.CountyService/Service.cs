@@ -5,6 +5,14 @@
 
 namespace HealthMetrics.CountyService
 {
+    using HealthMetrics.Common;
+    using Microsoft.ServiceFabric.Data;
+    using Microsoft.ServiceFabric.Data.Collections;
+    using Microsoft.ServiceFabric.Services.Client;
+    using Microsoft.ServiceFabric.Services.Communication.Client;
+    using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using Microsoft.ServiceFabric.Services.Runtime;
+    using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -15,14 +23,6 @@ namespace HealthMetrics.CountyService
     using System.Net;
     using System.Threading;
     using System.Threading.Tasks;
-    using HealthMetrics.Common;
-    using Microsoft.ServiceFabric.Data;
-    using Microsoft.ServiceFabric.Data.Collections;
-    using Microsoft.ServiceFabric.Services.Client;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
-    using Microsoft.ServiceFabric.Services.Communication.Runtime;
-    using Microsoft.ServiceFabric.Services.Runtime;
-    using Newtonsoft.Json;
     using Web.Service;
 
     public class Service : StatefulService
@@ -66,7 +66,7 @@ namespace HealthMetrics.CountyService
             this.indexCalculator = new HealthIndexCalculator(this.Context);
 
             ServicePrimer primer = new ServicePrimer();
-            await primer.WaitForStatefulService(this.nationalServiceInstanceUri);
+            await primer.WaitForStatefulService(this.nationalServiceInstanceUri, cancellationToken);
 
             IReliableDictionary<int, string> countyNamesDictionary =
                 await this.StateManager.GetOrAddAsync<IReliableDictionary<int, string>>(CountyNameDictionaryName);
@@ -141,8 +141,8 @@ namespace HealthMetrics.CountyService
                                 HttpWebRequest request = WebRequest.CreateHttp(serviceAddress);
                                 request.Method = "POST";
                                 request.ContentType = "application/json";
-                                request.Timeout = (int) client.OperationTimeout.TotalMilliseconds;
-                                request.ReadWriteTimeout = (int) client.ReadWriteTimeout.TotalMilliseconds;
+                                request.Timeout = (int)client.OperationTimeout.TotalMilliseconds;
+                                request.ReadWriteTimeout = (int)client.ReadWriteTimeout.TotalMilliseconds;
 
                                 using (Stream requestStream = request.GetRequestStream())
                                 {
@@ -155,7 +155,7 @@ namespace HealthMetrics.CountyService
                                             buffer.Flush();
                                         }
 
-                                        using (HttpWebResponse response = (HttpWebResponse) request.GetResponse())
+                                        using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                                         {
                                             ServiceEventSource.Current.ServiceMessage(this, "County Data Sent {0}", serviceAddress);
                                             return Task.FromResult(true);

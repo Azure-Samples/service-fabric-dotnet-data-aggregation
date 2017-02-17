@@ -5,14 +5,14 @@
 
 namespace HealthMetrics.BandCreationService
 {
+    using HealthMetrics.BandActor.Interfaces;
+    using HealthMetrics.Common;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Fabric.Description;
     using System.IO;
     using System.Threading.Tasks;
-    using HealthMetrics.BandActor.Interfaces;
-    using HealthMetrics.Common;
 
     public class BandActorGenerator
     {
@@ -73,7 +73,7 @@ namespace HealthMetrics.BandCreationService
 
                 string countyName = string.Format("{0}, {1}", values[1], values[2].Replace(" ", ""));
 
-                int totalDoctors = this.baseDoctorsPerCounty + (this.doctorsPerPopulation*(int) (Math.Round((double) population/this.populationFactor, 0)));
+                int totalDoctors = this.baseDoctorsPerCounty + (this.doctorsPerPopulation * (int)(Math.Round((double)population / this.populationFactor, 0)));
 
                 for (int doctorCount = 0; doctorCount < totalDoctors; doctorCount++)
                 {
@@ -108,8 +108,8 @@ namespace HealthMetrics.BandCreationService
 
             double u1 = rand.NextDouble();
             double u2 = rand.NextDouble();
-            double randStdNormal = Math.Sqrt(-2.0*Math.Log(u1))*Math.Sin(2.0*Math.PI*u2);
-            double randNormal = mean + stddev*randStdNormal;
+            double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
+            double randNormal = mean + stddev * randStdNormal;
             double finalSampledVal = Math.Round(randNormal, precision);
             return finalSampledVal;
         }
@@ -127,8 +127,9 @@ namespace HealthMetrics.BandCreationService
             }
 
             //move to a scale of 0-100
-            return (HealthIndex) Math.Round((healthDistribution + 3)*16.7, 0);
+            return (HealthIndex)Math.Round((healthDistribution + 3) * 16.7, 0);
 
+            //Where did 16.7 come from?
             //healthDistribution = healthDistribution * 100; //-3 = -300, -1.27 = -127, 3 = 300, 2.20 = 220
             //healthDistribution = healthDistribution + 300; // -300 = 0, 300 = 600, -127 = 173 220 = 520
             //healthDistribution = Math.Round(healthDistribution / 6, 0); // 0 = 0, 600 = 100, 173 = 29, 520 = 87

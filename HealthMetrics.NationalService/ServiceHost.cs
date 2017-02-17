@@ -5,11 +5,11 @@
 
 namespace HealthMetrics.NationalService
 {
+    using Microsoft.ServiceFabric.Services.Runtime;
     using System;
     using System.Diagnostics;
     using System.Net;
     using System.Threading;
-    using Microsoft.ServiceFabric.Services.Runtime;
 
     public class ServiceHost
     {

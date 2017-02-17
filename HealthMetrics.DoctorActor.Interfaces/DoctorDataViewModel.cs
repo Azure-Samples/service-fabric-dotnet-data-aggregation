@@ -5,9 +5,9 @@
 
 namespace HealthMetrics.DoctorActor.Interfaces
 {
+    using HealthMetrics.Common;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
-    using HealthMetrics.Common;
 
     [DataContract]
     public struct DoctorDataViewModel

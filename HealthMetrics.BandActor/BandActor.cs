@@ -5,11 +5,6 @@
 
 namespace HealthMetrics.BandActor
 {
-    using System;
-    using System.Collections.ObjectModel;
-    using System.Fabric;
-    using System.Fabric.Description;
-    using System.Threading.Tasks;
     using HealthMetrics.BandActor.Interfaces;
     using HealthMetrics.Common;
     using HealthMetrics.DoctorActor.Interfaces;
@@ -17,6 +12,11 @@ namespace HealthMetrics.BandActor
     using Microsoft.ServiceFabric.Actors.Client;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
+    using System;
+    using System.Collections.ObjectModel;
+    using System.Fabric;
+    using System.Fabric.Description;
+    using System.Threading.Tasks;
 
     internal class BandActor : Actor, IBandActor, IRemindable
     {
@@ -164,7 +164,7 @@ namespace HealthMetrics.BandActor
 
             if (BandActorStateResult.HasValue)
             {
-                BandActorStateResult.Value.AddHeartRateRecord(new HeartRateRecord((float) this.random.NextDouble()));
+                BandActorStateResult.Value.AddHeartRateRecord(new HeartRateRecord((float)this.random.NextDouble()));
                 await this.StateManager.SetStateAsync<BandActorState>("BandActorState", BandActorStateResult.Value);
             }
             return;

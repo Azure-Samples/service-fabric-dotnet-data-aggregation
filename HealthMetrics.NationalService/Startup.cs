@@ -5,9 +5,9 @@
 
 namespace HealthMetrics.NationalService
 {
-    using System.Web.Http;
     using Microsoft.ServiceFabric.Data;
     using Owin;
+    using System.Web.Http;
     using Web.Service;
 
     /// <summary>

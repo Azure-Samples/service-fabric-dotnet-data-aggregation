@@ -5,10 +5,10 @@
 
 namespace HealthMetrics.DoctorActor
 {
+    using Microsoft.ServiceFabric.Actors.Runtime;
     using System;
     using System.Diagnostics.Tracing;
     using System.Fabric;
-    using Microsoft.ServiceFabric.Actors.Runtime;
 
     [EventSource(Name = "MyCompany-HealthMetrics-HealthMetrics.DoctorActor")]
     internal sealed class ActorEventSource : EventSource

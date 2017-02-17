@@ -5,10 +5,10 @@
 
 namespace HealthMetrics.WebService
 {
+    using Microsoft.ServiceFabric.Services.Runtime;
     using System;
     using System.Diagnostics.Tracing;
     using System.Fabric;
-    using Microsoft.ServiceFabric.Services.Runtime;
 
     [EventSource(Name = "MyCompany-HealthMetrics-HealthMetrics.WebService")]
     internal sealed class ServiceEventSource : EventSource

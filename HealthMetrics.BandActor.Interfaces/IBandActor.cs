@@ -5,8 +5,8 @@
 
 namespace HealthMetrics.BandActor.Interfaces
 {
-    using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors;
+    using System.Threading.Tasks;
 
     public interface IBandActor : IActor
     {

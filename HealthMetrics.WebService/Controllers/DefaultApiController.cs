@@ -5,17 +5,17 @@
 
 namespace HealthMetrics.WebService.Controllers
 {
+    using HealthMetrics.BandActor.Interfaces;
+    using HealthMetrics.Common;
+    using HealthMetrics.DoctorActor.Interfaces;
+    using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Client;
     using System;
     using System.Collections.ObjectModel;
     using System.Fabric.Description;
     using System.Net.Http;
     using System.Threading.Tasks;
     using System.Web.Http;
-    using HealthMetrics.BandActor.Interfaces;
-    using HealthMetrics.Common;
-    using HealthMetrics.DoctorActor.Interfaces;
-    using Microsoft.ServiceFabric.Actors;
-    using Microsoft.ServiceFabric.Actors.Client;
 
     [RoutePrefix("api")]
     public class DefaultApiController : ApiController

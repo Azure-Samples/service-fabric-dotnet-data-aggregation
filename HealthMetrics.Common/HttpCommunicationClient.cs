@@ -5,9 +5,9 @@
 
 namespace HealthMetrics.Common
 {
+    using Microsoft.ServiceFabric.Services.Communication.Client;
     using System;
     using System.Fabric;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
 
     /// <summary>
     /// Communication client that wraps the logic for talking to the service.
