@@ -1,6 +1,6 @@
 ﻿#$imageStoreConnectionString = "file:C:\SfDevCluster\Data\ImageStoreShare"
 $imageStoreConnectionString = "fabric:ImageStore"
-Connect-ServiceFabricCluster xtophsfdevops.southcentralus.cloudapp.azure.com:19000
+Connect-ServiceFabricCluster ""
 
 Get-ServiceFabricApplication -ApplicationName "fabric:/HealthMetrics" | Remove-ServiceFabricApplication -Force -ForceRemove
 Get-ServiceFabricApplicationType -ApplicationTypeName "HealthMetrics" | Unregister-ServiceFabricApplicationType -Force
