@@ -31,7 +31,7 @@ $loadGenNodeType = "LoadGenNodeType"
 
 if($cloud)
 {
-    $clusterAddress = '"$cloudAddress":19000'
+    $clusterAddress = $cloudAddress+":19000"
     $webServiceInstanceCount = -1
     $bandCreationInstanceCount = -1
     $countyServicePartitionCount = 5
@@ -100,6 +100,8 @@ $parameters.Add("ScoreCalculationMode","Mode1")
 $parameters.Add("CreationServiceParallelThreads","4")
 $parameters.Add("MaxBandsToCreatePerServiceInstance", $bandsPerService)
 $parameters.Add("GenerateKnownPeople","false")
+
+Write-Host "Connecting to $clusterAddress"
 
 Connect-ServiceFabricCluster $clusterAddress
 
