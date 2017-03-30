@@ -5,6 +5,7 @@
 
 namespace HealthMetrics.DoctorActor.Interfaces
 {
+    using Common;
     using System;
     using System.Runtime.Serialization;
 
@@ -14,13 +15,11 @@ namespace HealthMetrics.DoctorActor.Interfaces
         public PatientDataViewModel(
             Guid patientId,
             string name,
-            int healthIndex,
-            int heartRateIndex)
+            HealthIndex healthIndex)
         {
             this.PatientId = patientId;
             this.PatientName = name;
             this.HealthIndex = healthIndex;
-            this.HeartRateIndex = heartRateIndex;
         }
 
         [DataMember]
@@ -30,9 +29,6 @@ namespace HealthMetrics.DoctorActor.Interfaces
         public string PatientName { get; private set; }
 
         [DataMember]
-        public int HealthIndex { get; private set; }
-
-        [DataMember]
-        public int HeartRateIndex { get; private set; }
+        public HealthIndex HealthIndex { get; private set; }
     }
 }

@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ServiceManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="HealthMetrics.DoctorActorPkg" Version="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <ServiceTypes>
-    <StatefulServiceType ServiceTypeName="DoctorActorServiceType" HasPersistedState="true">
+    <StatefulServiceType ServiceTypeName="DoctorActorServiceType">
       <Extensions>
-        <Extension Name="__GeneratedServiceType__" GeneratedId="9804c429-d2e3-400a-a154-40fd97b7c5ed|Persisted">
+        <Extension Name="__GeneratedServiceType__" GeneratedId="f9a28501-294b-4fab-bc45-55ac1e8a1673|Volatile">
           <GeneratedNames xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
             <DefaultService Name="DoctorActorService" />
             <ServiceEndpoint Name="DoctorActorServiceEndpoint" />

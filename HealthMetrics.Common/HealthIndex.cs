@@ -12,10 +12,12 @@ namespace HealthMetrics.Common
     public struct HealthIndex : IComparable, IComparable<HealthIndex>, IEquatable<HealthIndex>
     {
         [DataMember] private int value;
+        [DataMember] private bool mode;
 
-        public HealthIndex(int value)
+        public HealthIndex(int value, bool mode)
         {
             this.value = value;
+            this.mode = mode;
         }
 
         public int CompareTo(HealthIndex other)
@@ -23,11 +25,10 @@ namespace HealthMetrics.Common
             return this.value.CompareTo(other.value);
         }
 
-
-        public static explicit operator HealthIndex(int value)
-        {
-            return new HealthIndex(value);
-        }
+        //public static explicit operator HealthIndex(int value, bool mode)
+        //{
+        //    return new HealthIndex(value, mode);
+        //}
 
         public static bool operator ==(HealthIndex item1, HealthIndex item2)
         {
@@ -61,12 +62,12 @@ namespace HealthMetrics.Common
 
         public int CompareTo(object obj)
         {
-            return this.CompareTo((HealthIndex) obj);
+            return this.CompareTo((HealthIndex)obj);
         }
 
         public bool Equals(HealthIndex other)
         {
-            return this.value.Equals(other.value);
+            return (this.value.Equals(other.value) && this.mode.Equals(other.mode));
         }
 
         public override bool Equals(object obj)

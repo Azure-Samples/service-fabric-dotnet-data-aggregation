@@ -18,43 +18,7 @@ function MetricsApp() {
 
     this.FormatDateTime = function (dateObject) {
         var d = new Date(dateObject);
-
         return d.getTime();
-
-        //var year = d.getFullYear();
-        //var month = d.getMonth();
-
-        //if (month.toString().length == 1) {
-        //    month = "0" + month.toString();
-        //}
-
-        //var day = d.getDay();
-
-        //if (day.toString().length == 1) {
-        //    day = "0" + day.toString();
-        //}
-
-        //var hour = d.getHours();
-
-        //if (hour.toString().length == 1) {
-        //    hour = "0" + hour.toString();
-        //}
-
-        //var min = d.getMinutes();
-
-        //if (min.toString().length == 1) {
-        //    min = "0" + min.toString();
-        //}
-
-        //var sec = d.getSeconds();
-
-        //if (sec.toString().length == 1) {
-        //    sec = "0" + sec.toString();
-        //}
-
-        //var time = year + "-" + month + "-" + day + " " + hour + ":" + min + ":" + sec;
-
-        //return time;
     };
 
     this.Initialize = function () {
@@ -69,46 +33,18 @@ function MetricsApp() {
         setInterval(self.UpdateStats, 3000);
     }
 
-    this.InitializeKnownUsers = function () {
-        api.GetSetting("KnownPatientId", function (resultValue) {
-            self.currentBandId = resultValue;
-        });
+    this.InitializeUsers = function () {
 
-        api.GetSetting("KnownDoctorId", function (resultValue) {
-            self.currentDoctorId = resultValue;
+        api.GetIds(function (result) {
+            var strings = result.split("|");
+            self.currentBandId = strings[0];
+            self.currentDoctorId = strings[1];
         });
 
         setInterval(self.UpdateUserInfo, 2000);
-        setInterval(self.UpdateDoctorInfo, 5000);
+        //setInterval(self.UpdateDoctorInfo, 5000);
     }
 
-    this.InitializeRandomUsers = function () {
-        api.GetNationalHealth(function (countyInitData) {
-            if (countyInitData.length < 2) {
-                setTimeout(self.InitializeRandomUsers, 3000);
-                return;
-            }
-
-            var userViewDoctor = self.RandomElement(countyInitData);
-            var doctorViewDoctor = self.RandomElement(countyInitData);
-
-            api.GetDoctors(userViewDoctor.CountyId, function (doctorListInitData) {
-                var doctor = self.RandomElement(doctorListInitData);
-
-                api.GetDoctor(doctor.DoctorId, function (doctorInitData) {
-                    self.currentBandId = self.RandomElement(doctorInitData.Patients).PatientId;
-                    self.UpdateUserInfo();
-                    setInterval(self.UpdateUserInfo, 2000);
-                });
-            });
-
-            api.GetDoctors(doctorViewDoctor.CountyId, function (doctorListInitData) {
-                self.currentDoctorId = self.RandomElement(doctorListInitData).DoctorId;
-                self.UpdateDoctorInfo();
-                setInterval(self.UpdateDoctorInfo, 5000);
-            });
-        });
-    };
 
     this.UpdateStats = function () {
 
@@ -117,81 +53,19 @@ function MetricsApp() {
             var bandStats = $('#bandsStats');
             var doctorStats = $('#doctorsStats');
             var healthReportStats = $('#healthReportsStats');
+            var messageRate = $('#messageRate')
+
+            var creationDate = new Date(statsData.StartTimeOffset);
+            var now = new Date();
+
+            var timeInSeconds = (now - creationDate) / 1000;
+            var rawCreationRate = statsData.HealthReportCount / timeInSeconds;
+            var creationRate = Math.round(rawCreationRate * 100) / 100;
 
             bandStats.text(statsData.PatientCount);
             doctorStats.text(statsData.DoctorCount);
             healthReportStats.text(statsData.HealthReportCount);
-        });
-    }
-
-    this.UpdateDoctorInfo = function () {
-        api.GetDoctor(self.currentDoctorId, function (doctorData) {
-            self.currentDoctorName = doctorData.DoctorName;
-            var doctorInfo = $('#doctorInfo');
-
-            var patientHealthIndex = $('#doctorInfo-patientHealthIndex');
-            patientHealthIndex.empty();
-
-            var healthBoxClass = getHealthBoxClass(doctorData.AveragePatientHealthIndex);
-            var healthBoxValue = getHealthBoxTextValue(doctorData.AveragePatientHealthIndex);
-
-            patientHealthIndex.append($('<div>').addClass(healthBoxClass).css('background-color', computeColor(doctorData.AveragePatientHealthIndex)).html(healthBoxValue));
-            patientHealthIndex.append($('<span/>').text('Patient Average Stress'));
-
-
-            api.GetCountyHealth(doctorData.CountyInfo.CountyId, function (value) {
-                var countyHealthIndex = $('#doctorInfo-countyHealthIndex');
-                countyHealthIndex.empty();
-
-                var healthBoxClass = getHealthBoxClass(doctorData.AveragePatientHealthIndex);
-                var healthBoxValue = getHealthBoxTextValue(doctorData.AveragePatientHealthIndex);
-
-                countyHealthIndex.append($('<div/>').addClass(healthBoxClass).css('background-color', computeColor(value)).html(healthBoxValue));
-                countyHealthIndex.append($('<span/>').text(doctorData.CountyInfo.CountyName + ' average'));
-            });
-
-            var patientTable = $('#doctorInfo #patientInfoTable');
-            patientTable.empty();
-
-            $('<thead/>')
-                .append(
-                    $('<tr/>')
-                        .append(
-                            $('<th/>').text('Patient'))
-                        .append(
-                            $('<th />').text('Stress'))
-                        .append(
-                            $('<th />').text('HR'))
-                        )
-                .appendTo(patientTable);
-
-            $.each(doctorData.Patients, function (id, jObject) {
-
-                var healthIndexClass = getHealthBoxClass(jObject.HealthIndex);
-                var healthIndexValue = getHealthBoxTextValue(jObject.HealthIndex);
-
-                var bloodPressureClass = getHealthBoxClass(jObject.HeartRateIndex);
-                var bloodPressureValue = getHealthBoxTextValue(jObject.HeartRateIndex);
-
-                $('<tr/>')
-                    .append(
-                        $('<td/>').text(jObject.PatientName))
-                    .append(
-                        $('<td/>')
-                            .append(
-                                $('<div/>').addClass(healthIndexClass).css('background-color', computeColor(jObject.HealthIndex)).html(healthIndexValue)))
-                    .append(
-                        $('<td/>')
-                            .append(
-                                $('<div/>').addClass(bloodPressureClass).css('background-color', computeColor(jObject.HeartRateIndex)).html(bloodPressureValue)))
-                    .appendTo(patientTable)
-            });
-
-            $('#doctorInfo .loadingMessage').hide();
-
-            if (self.currentContext == 'doctor') {
-                self.SetUserName(self.currentDoctorName);
-            }
+            messageRate.text(creationRate);
         });
     }
 
@@ -221,6 +95,17 @@ function MetricsApp() {
         api.GetPatient(self.currentBandId, function (patientData) {
             self.currentPersonName = patientData.PersonName;
 
+            var healthBoxClass = getHealthBoxClass(patientData.HealthIndexValue);
+            var healthBoxText = getHealthBoxTextValue(patientData.HealthIndexValue);
+
+            var userHealthIndex = $('#userInfo-userHealthIndex');
+            userHealthIndex.empty();
+            userHealthIndex.append($('<div/>').addClass(healthBoxClass).css('background-color', computeColor(patientData.HealthIndexValue)).html(healthBoxText));
+            userHealthIndex.append($('<span/>').text('Your Stress Index'));
+
+            var heartRateTable = $('#userStats #heartRateTable');
+            heartRateTable.empty();
+
             api.GetCountyHealth(patientData.CountyInfo.CountyId, function (value) {
 
                 var healthBoxClass = getHealthBoxClass(value);
@@ -231,17 +116,6 @@ function MetricsApp() {
                 countyHealthIndex.append($('<div/>').addClass(healthBoxClass).css('background-color', computeColor(value)).html(healthBoxText));
                 countyHealthIndex.append($('<span/>').text(patientData.CountyInfo.CountyName + ' average'));
             });
-
-            var healthBoxClass = getHealthBoxClass(patientData.HealthIndex);
-            var healthBoxText = getHealthBoxTextValue(patientData.HealthIndex);
-
-            var userHealthIndex = $('#userInfo-userHealthIndex');
-            userHealthIndex.empty();
-            userHealthIndex.append($('<div/>').addClass(healthBoxClass).css('background-color', computeColor(patientData.HealthIndex)).html(healthBoxText));
-            userHealthIndex.append($('<span/>').text('Your Stress Index'));
-
-            var heartRateTable = $('#userStats #heartRateTable');
-            heartRateTable.empty();
 
             var bptickpoints = [];
 
@@ -304,14 +178,7 @@ $(function () {
     var metricsApp = new MetricsApp();
     metricsApp.Initialize();
 
-    api.GetSetting("GenerateKnownPeople", function (resultValue) {
-        if (resultValue.toLowerCase() === "true") {
-            metricsApp.InitializeKnownUsers();
-        }
-        else {
-            metricsApp.InitializeRandomUsers();
-        }
-    });
+    metricsApp.InitializeUsers();
 
     $('#userLoginLink').click(function () {
         metricsApp.SetUserContext();
@@ -354,18 +221,18 @@ var mapApp = {
         var width = ($(window).width()) - 350;
         var height = width * .66;
 
-        var projection = d3.geo.albersUsa()
+        var projection = d3.geoAlbersUsa()
             .scale(width)
             .translate([width / 2, height / 2]);
 
-        var path = d3.geo.path()
+        var path = d3.geoPath()
             .projection(projection);
 
-        
         d3.json("/Content/us-10m.json", function (error, topology) {
-            svg.selectAll("path")
+            svg.selectAll(".region")
             .data(topojson.feature(topology, topology.objects.counties).features)
-            .enter().append("path")
+            .enter()
+            .append("path")
             .attr("d", path)
             .attr('fill', function (d) { return '#313131'; })
             .attr("id", function (d) { return "p" + d.id; });
@@ -374,7 +241,7 @@ var mapApp = {
     refreshMap: function (newData) {
         var self = this;
         $.map(newData, function (data) {
-            d3.select("path#p" + data.countyId)
+            d3.select("path#p" + data.Id)
             .transition()
             .duration(1000)
             .attr('fill', function (d) {
@@ -388,41 +255,41 @@ var mapApp = {
 var resizeListener = function () {
     $(window).one("resize", function () {
         window.location.reload(true);
-        setTimeout(resizeListener, 100); //rebinds itself after 100ms
+        setTimeout(resizeListener, 200); //rebinds itself after 200ms
     });
 }
 
 resizeListener();
 
-function computeColor(healthIndex) {
-    if (healthIndex >= 0) {
-        return 'hsl(' + healthIndex + ', 100%, 50%)';
+function computeColor(HealthIndex) {
+    if (HealthIndex.mode == false) {
+        return 'hsl(0, 0%, ' + HealthIndex.value + '%)';
     }
     else {
-        return 'hsl(0, 0%, 0%)';
+        return 'hsl('+ HealthIndex.value +', 100%, 50%)';
     }
 }
 
 function countyHealthViewModel() {
-    this.countyId = 0;
+    this.Id = 0;
     this.healthIndex = 0;
 }
 
-function getHealthBoxClass(value) {
-    if (value == -1 || value == 0) {
-        return 'healthBox-black';
+function getHealthBoxClass(HealthIndex) {
+    if (HealthIndex.value == -1) {
+        return 'healthBox-noinfo';
     }
     else {
         return 'healthBox';
     }
 }
 
-function getHealthBoxTextValue(value) {
-    if (value == -1) {
-        return '0'
+function getHealthBoxTextValue(HealthIndex) {
+    if (HealthIndex.value == -1) {
+        return 'na'
     }
     else {
-        return value;
+        return HealthIndex.value;
     }
 }
 
@@ -468,7 +335,7 @@ function DrawLineGraph(elementById, title, xAxisName, yAxisName, dataArray, yHei
 function getCountyHealthViewModel(countyHealthData) {
     var ret = new countyHealthViewModel();
 
-    ret.countyId = countyHealthData.CountyId;
+    ret.Id = countyHealthData.Id;
     ret.healthIndex = countyHealthData.Health;
 
     return ret;
@@ -489,8 +356,8 @@ angular.module('healthApp', [])
         };
         $scope.refreshCountyHealth = function () {
             healthService.listCountyHealth()
-                .success(function (data, status, headers, config) {
-                    $scope.countyData = $.map(data, function (countyHealthData) {
+                .then(function (result) {
+                    $scope.countyData = $.map(result.data, function (countyHealthData) {
                         return getCountyHealthViewModel(countyHealthData);
                     });
                 });

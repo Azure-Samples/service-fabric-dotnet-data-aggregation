@@ -68,13 +68,15 @@ namespace HealthMetrics.CountyService
             ServicePrimer primer = new ServicePrimer();
             await primer.WaitForStatefulService(this.nationalServiceInstanceUri, cancellationToken);
 
-            IReliableDictionary<int, string> countyNamesDictionary =
+
+            try
+            {
+
+                IReliableDictionary<int, string> countyNamesDictionary =
                 await this.StateManager.GetOrAddAsync<IReliableDictionary<int, string>>(CountyNameDictionaryName);
 
-            ServiceEventSource.Current.ServiceMessage(this, "CountyService starting data processing.");
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                try
+                ServiceEventSource.Current.ServiceMessage(this, "CountyService starting data processing.");
+                while (!cancellationToken.IsCancellationRequested)
                 {
                     //every ten seconds, grab the counties and send them to national
                     await Task.Delay(this.interval, cancellationToken);
@@ -105,8 +107,8 @@ namespace HealthMetrics.CountyService
 
                         int totalDoctorCount = 0;
                         int totalPatientCount = 0;
-                        int totalHealthReportCount = 0;
-                        int avgHealth = 0;
+                        long totalHealthReportCount = 0;
+                        HealthIndex avgHealth;
 
                         using (ITransaction tx = this.StateManager.CreateTransaction())
                         {
@@ -166,18 +168,26 @@ namespace HealthMetrics.CountyService
                             cancellationToken);
                     }
                 }
-                catch (TaskCanceledException)
-                {
-                    throw;
-                }
-                catch (Exception exception)
-                {
-                    ServiceEventSource.Current.ServiceMessage(
-                        this,
-                        "CountyService encountered an exception trying to send data to National Service: {0}",
-                        exception.ToString());
-                    continue;
-                }
+            }
+            catch (TimeoutException te)
+            {
+                // transient error. Retry.
+                ServiceEventSource.Current.ServiceMessage(this, "CountyService encountered an exception trying to send data to National Service: TimeoutException in RunAsync: {0}", te.ToString());
+            }
+            catch (FabricTransientException fte)
+            {
+                // transient error. Retry.
+                ServiceEventSource.Current.ServiceMessage(this, "CountyService encountered an exception trying to send data to National Service: FabricTransientException in RunAsync: {0}", fte.ToString());
+            }
+            catch (FabricNotPrimaryException)
+            {
+                // not primary any more, time to quit.
+                return;
+            }
+            catch (Exception ex)
+            {
+                ServiceEventSource.Current.ServiceMessage(this, ex.ToString());
+                throw;
             }
         }
 

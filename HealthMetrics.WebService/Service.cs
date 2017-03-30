@@ -10,6 +10,8 @@ namespace HealthMetrics.WebService
     using System.Collections.Generic;
     using System.Fabric;
     using Web.Service;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     public class Service : StatelessService
     {

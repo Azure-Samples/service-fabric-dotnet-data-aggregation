@@ -60,7 +60,7 @@ namespace HealthMetrics.CountyService
                     {
                         DoctorId = x.Key,
                         DoctorName = x.Value.DoctorName,
-                        HealthStatus = this.indexCalculator.ComputeIndex(x.Value.AverageHealthIndex)
+                        HealthStatus = x.Value.AverageHealthIndex
                     };
                 }).OrderByDescending((x) => x.HealthStatus);
 

@@ -127,7 +127,7 @@ namespace HealthMetrics.BandCreationService
             }
 
             //move to a scale of 0-100
-            return (HealthIndex)Math.Round((healthDistribution + 3) * 16.7, 0);
+            return new HealthIndex((int)Math.Round((healthDistribution + 3) * 16.7, 0), false);
 
             //Where did 16.7 come from?
             //healthDistribution = healthDistribution * 100; //-3 = -300, -1.27 = -127, 3 = 300, 2.20 = 220

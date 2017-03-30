@@ -18,14 +18,14 @@ namespace HealthMetrics.BandActor.Interfaces
             Guid bandId,
             string patientName,
             CountyRecord countyInfo,
-            int healthIndex,
+            HealthIndex healthIndexValue,
             IEnumerable<HeartRateRecord> heartRateHistory)
         {
             this.DoctorId = doctorId;
             this.PersonId = bandId;
             this.PersonName = patientName;
             this.CountyInfo = countyInfo;
-            this.HealthIndex = healthIndex;
+            this.HealthIndexValue = healthIndexValue;
             this.HeartRateHistory = heartRateHistory;
         }
 
@@ -42,14 +42,14 @@ namespace HealthMetrics.BandActor.Interfaces
         public CountyRecord CountyInfo { get; private set; }
 
         [DataMember]
-        public int HealthIndex { get; private set; }
+        public HealthIndex HealthIndexValue { get; private set; }
 
         [DataMember]
         public IEnumerable<HeartRateRecord> HeartRateHistory { get; private set; }
 
         public override string ToString()
         {
-            return string.Format("{0}|{1}|{2}|{3}|{4}", this.DoctorId, this.PersonId, this.PersonName, this.CountyInfo, this.HealthIndex);
+            return string.Format("{0}|{1}|{2}|{3}|{4}", this.DoctorId, this.PersonId, this.PersonName, this.CountyInfo, this.HealthIndexValue);
         }
     }
 }

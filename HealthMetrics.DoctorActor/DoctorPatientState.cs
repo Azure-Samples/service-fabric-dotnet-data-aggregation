@@ -12,12 +12,11 @@ namespace HealthMetrics.DoctorActor
     [DataContract]
     internal struct DoctorPatientState
     {
-        public DoctorPatientState(Guid id, string name, HealthIndex healthIndex, HealthIndex heartRateIndex)
+        public DoctorPatientState(Guid id, string name, HealthIndex healthIndex)
         {
             this.Id = id;
             this.Name = name;
             this.HealthIndex = healthIndex;
-            this.HeartRateIndex = heartRateIndex;
         }
 
         [DataMember]
@@ -28,8 +27,5 @@ namespace HealthMetrics.DoctorActor
 
         [DataMember]
         public HealthIndex HealthIndex { get; private set; }
-
-        [DataMember]
-        public HealthIndex HeartRateIndex { get; private set; }
     }
 }

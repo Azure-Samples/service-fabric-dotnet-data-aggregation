@@ -10,7 +10,7 @@ namespace HealthMetrics.Common
     [DataContract]
     public struct CountyStatsViewModel
     {
-        public CountyStatsViewModel(int doctorCount, int patientCount, int healthReportCount, int averageHealthIndex)
+        public CountyStatsViewModel(int doctorCount, int patientCount, long healthReportCount, HealthIndex averageHealthIndex)
         {
             this.AverageHealthIndex = averageHealthIndex;
             this.DoctorCount = doctorCount;
@@ -25,9 +25,9 @@ namespace HealthMetrics.Common
         public int PatientCount { get; private set; }
 
         [DataMember]
-        public int HealthReportCount { get; private set; }
+        public long HealthReportCount { get; private set; }
 
         [DataMember]
-        public int AverageHealthIndex { get; private set; }
+        public HealthIndex AverageHealthIndex { get; private set; }
     }
 }

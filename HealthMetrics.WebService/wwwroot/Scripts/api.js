@@ -17,16 +17,16 @@
         this.httpGetJson('/api/county/' + countyId + '/doctors', result);
     };
 
-    this.GetDoctor = function (doctorId, result) {
-        this.httpGetJson(this.serviceUrl + '/api/doctors/' + doctorId, result);
-    };
-
     this.GetPatient = function (bandId, result) {
         this.httpGetJson(this.serviceUrl + '/api/patients/' + bandId, result);
     };
 
     this.GetSetting = function (settingName, result) {
         this.httpGetJson(this.serviceUrl + '/api/settings/' + settingName, result);
+    };
+
+    this.GetIds = function (result) {
+        this.httpGetJson(this.serviceUrl + '/api/settings/GetIds', result);
     };
 
     this.httpGetJson = function (url, result) {

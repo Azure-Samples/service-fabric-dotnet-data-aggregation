@@ -3,8 +3,8 @@
   <Parameters>
     <Parameter Name="ScoreCalculationMode" DefaultValue="Mode1" />
     <Parameter Name="CreationServiceParallelThreads" DefaultValue="4" />
-    <Parameter Name="MaxBandsToCreatePerServiceInstance" DefaultValue="6000" />
-    <Parameter Name="GenerateKnownPeople" DefaultValue="true" />
+    <Parameter Name="MaxBandsToCreatePerServiceInstance" DefaultValue="4000" />
+    <Parameter Name="GenerateKnownPeople" DefaultValue="false" />
     <Parameter Name="KnownPatientId" DefaultValue="0e83c959-657d-ea06-0e2d-13f749d62229" />
     <Parameter Name="KnownDoctorId" DefaultValue="342827c7-bd78-d825-f312-2eae41f8ea45" />
   </Parameters>

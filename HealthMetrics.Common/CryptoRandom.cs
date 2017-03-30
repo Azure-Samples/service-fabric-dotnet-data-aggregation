@@ -39,8 +39,9 @@ namespace HealthMetrics.Common
         {
             byte[] b = new byte[4];
             r.GetBytes(b);
-            return (double) BitConverter.ToUInt32(b, 0)/UInt32.MaxValue;
+            return (double)BitConverter.ToUInt32(b, 0) / UInt32.MaxValue;
         }
+        
 
         ///<summary>
         /// Returns a random number within the specified range.
@@ -49,7 +50,12 @@ namespace HealthMetrics.Common
         ///<param name=”maxValue”>The exclusive upper bound of the random number returned. maxValue must be greater than or equal to minValue.</param>
         public int Next(int minValue, int maxValue)
         {
-            return (int) Math.Round(this.NextDouble()*(maxValue - minValue - 1)) + minValue;
+            if (maxValue <= minValue)
+            {
+                throw new ArgumentOutOfRangeException(String.Format("max:{0} must be > min:{1}!", maxValue, minValue));
+            }
+
+            return (int)Math.Round(this.NextDouble() * (maxValue - minValue - 1)) + minValue;
         }
 
         ///<summary>
@@ -67,6 +73,52 @@ namespace HealthMetrics.Common
         public int Next(int maxValue)
         {
             return this.Next(0, maxValue);
+        }
+
+        public long NextLong(long minValue, long maxValue)
+        {
+            //from http://stackoverflow.com/a/13095144 modified for this class
+            if (maxValue <= minValue)
+            {
+                throw new ArgumentOutOfRangeException(String.Format("max:{0} must be > min:{1}!", maxValue, minValue));
+            }
+
+            //Working with ulong so that modulo works correctly with values > long.MaxValue
+            ulong uRange = (ulong)(maxValue - minValue);
+
+            //Prevent a modolo bias; see http://stackoverflow.com/a/10984975/238419
+            //for more information.
+            //In the worst case, the expected number of calls is 2 (though usually it's
+            //much closer to 1) so this loop doesn't really hurt performance at all.
+            ulong ulongRand;
+            do
+            {
+                byte[] buf = new byte[8];
+                r.GetBytes(buf);
+                ulongRand = (ulong)BitConverter.ToInt64(buf, 0);
+            } while (ulongRand > ulong.MaxValue - ((ulong.MaxValue % uRange) + 1) % uRange);
+
+            return (long)(ulongRand % uRange) + minValue;
+        }
+
+        /// <summary>
+        /// Returns a random long from 0 (inclusive) to max (exclusive)
+        /// </summary>
+        /// <param name="random">The given random instance</param>
+        /// <param name="max">The exclusive maximum bound.  Must be greater than 0</param>
+        public long NextLong(long max)
+        {
+            return this.NextLong(0, max);
+        }
+
+        /// <summary>
+        /// Returns a random long over all possible values of long (except long.MaxValue, similar to
+        /// random.Next())
+        /// </summary>
+        /// <param name="random">The given random instance</param>
+        public long NextLong()
+        {
+            return this.NextLong(long.MinValue, long.MaxValue);
         }
     }
 }
