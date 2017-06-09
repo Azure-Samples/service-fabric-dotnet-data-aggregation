@@ -62,7 +62,7 @@ namespace HealthMetrics.CountyService
                 }
                 else
                 {
-                    return this.Ok(-1);
+                    return this.Ok(this.indexCalculator.ComputeIndex(-1));
                 }
             }
         }
@@ -91,7 +91,7 @@ namespace HealthMetrics.CountyService
                         countyHealth.SetAsync(
                             tx,
                             doctorId,
-                            new CountyDoctorStats(stats.PatientCount, stats.HealthReportCount, stats.DoctorName, new HealthIndex(stats.AverageHealthIndex)));
+                            new CountyDoctorStats(stats.PatientCount, stats.HealthReportCount, stats.DoctorName, stats.AverageHealthIndex));
 
                     // Add the county only if it does not already exist.
                     ConditionalValue<string> getResult = await countyNameDictionary.TryGetValueAsync(tx, countyId);

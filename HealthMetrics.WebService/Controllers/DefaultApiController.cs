@@ -10,10 +10,14 @@ namespace HealthMetrics.WebService.Controllers
     using HealthMetrics.DoctorActor.Interfaces;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Client;
+    using Microsoft.ServiceFabric.Actors.Query;
     using System;
     using System.Collections.ObjectModel;
+    using System.Fabric;
     using System.Fabric.Description;
+    using System.Fabric.Query;
     using System.Net.Http;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Web.Http;
 
@@ -89,30 +93,6 @@ namespace HealthMetrics.WebService.Controllers
         }
 
         /// <summary>
-        /// Average patient health
-        /// List of patient info {ID, name, average health, BP health, BG health}
-        /// </summary>
-        /// <param name="doctorId"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("doctors/{doctorId}")]
-        public async Task<IHttpActionResult> GetDoctor(Guid doctorId)
-        {
-            try
-            {
-                ActorId doctorActor = new ActorId(doctorId);
-                ServiceUriBuilder serviceUri = new ServiceUriBuilder(this.GetSetting("DoctorActorServiceInstanceName"));
-                IDoctorActor actor = ActorProxy.Create<IDoctorActor>(doctorActor, serviceUri.ToUri());
-
-                return this.Ok(await actor.GetPatientsAsync());
-            }
-            catch (AggregateException ae)
-            {
-                return this.InternalServerError(ae.InnerException);
-            }
-        }
-
-        /// <summary>
         /// Doctor Id
         /// County Record
         ///     County Name
@@ -130,7 +110,6 @@ namespace HealthMetrics.WebService.Controllers
             try
             {
                 ActorId bandActorId = new ActorId(bandId);
-
                 ServiceUriBuilder serviceUri = new ServiceUriBuilder(this.GetSetting("BandActorServiceInstanceName"));
                 IBandActor actor = ActorProxy.Create<IBandActor>(bandActorId, serviceUri.ToUri());
 
@@ -145,6 +124,70 @@ namespace HealthMetrics.WebService.Controllers
         private string GetSetting(string key)
         {
             return this.configPackageSettings[key].Value;
+        }
+
+        [HttpGet]
+        [Route("settings/GetIds")]
+        public async Task<string> GetPatientId()
+        {
+            if (bool.Parse(this.configPackageSettings["GenerateKnownPeople"].Value))
+            {
+                var patientId = this.configPackageSettings["KnownPatientId"].Value;
+                var doctorId = this.configPackageSettings["KnownDoctorId"].Value;
+
+                return string.Format("{0}|{1}", patientId, doctorId);
+            }
+            else
+            {
+                return await this.GetRandomIdsAsync();
+            }
+        }
+
+        private async Task<string> GetRandomIdsAsync()
+        {
+            ServiceUriBuilder serviceUri = new ServiceUriBuilder(this.GetSetting("BandActorServiceInstanceName"));
+            Uri fabricServiceName = serviceUri.ToUri();
+
+            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+
+            var token = cts.Token;
+
+            FabricClient fc = new FabricClient();
+            ServicePartitionList partitions = await fc.QueryManager.GetPartitionListAsync(fabricServiceName);
+
+            ActorId bandActorId = null;
+
+            try
+            {
+                while (!token.IsCancellationRequested && bandActorId == null)
+                {
+                    foreach (Partition p in partitions)
+                    {
+                        var partitionKey = ((Int64RangePartitionInformation)p.PartitionInformation).LowKey;
+                        token.ThrowIfCancellationRequested();
+                        ContinuationToken queryContinuationToken = null;
+                        IActorService proxy = ActorServiceProxy.Create(fabricServiceName, partitionKey);
+                        PagedResult<ActorInformation> result = await proxy.GetActorsAsync(queryContinuationToken, token);
+                        foreach (ActorInformation info in result.Items)
+                        {
+                            bandActorId = info.ActorId;
+                            break;
+                        }
+                        //otherwise we will bounce around other partitions until we find an actor
+                    }
+                }
+
+                IBandActor bandActor = ActorProxy.Create<IBandActor>(bandActorId, fabricServiceName);
+                var data = await bandActor.GetBandDataAsync();
+
+                return string.Format("{0}|{1}", bandActorId, data.DoctorId);
+
+            }
+            catch
+            {
+                //no actors found within timeout
+                throw;
+            }
         }
     }
 }

@@ -33,32 +33,19 @@ namespace HealthMetrics.Common
             }
         }
 
-        public int ComputeIndex(HealthIndex index)
+        public HealthIndex ComputeIndex(int value)
         {
-            switch (this.calculationMode)
-            {
-                case CalculationMode.Detailed:
-                    return index.GetValue();
-
-                default:
-                    if (index < (HealthIndex) 33)
-                    {
-                        return -1;
-                    }
-                    else if (index >= (HealthIndex) 33 && index < (HealthIndex) 66)
-                    {
-                        return 0;
-                    }
-                    else
-                    {
-                        return 100;
-                    }
-            }
+            return new HealthIndex(value, (this.calculationMode == CalculationMode.Simple) ? false : true);
         }
 
-        public int ComputeAverageIndex(IEnumerable<HealthIndex> indices)
+        public HealthIndex ComputeIndex(HealthIndex value)
         {
-            return this.ComputeIndex((HealthIndex) Math.Round(indices.Average(x => x.GetValue()), 0));
+            return new HealthIndex(value.GetValue(), (this.calculationMode == CalculationMode.Simple) ? false : true);
+        }
+
+        public HealthIndex ComputeAverageIndex(IEnumerable<HealthIndex> indices)
+        {
+            return this.ComputeIndex((int)Math.Round(indices.Average(x => x.GetValue()), 0));            
         }
 
         private void UpdateConfigSettings(ConfigurationSettings configSettings)

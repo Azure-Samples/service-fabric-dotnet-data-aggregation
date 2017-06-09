@@ -5,15 +5,16 @@
 
 namespace HealthMetrics.NationalService.Models
 {
+    using Common;
     using System.Runtime.Serialization;
 
     [DataContract]
     public struct CountyHealth
     {
         [DataMember]
-        public int CountyId { get; set; }
+        public int Id { get; set; }
 
         [DataMember]
-        public int Health { get; set; }
+        public HealthIndex Health { get; set; }
     }
 }

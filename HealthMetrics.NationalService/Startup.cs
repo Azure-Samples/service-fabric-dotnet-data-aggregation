@@ -7,6 +7,7 @@ namespace HealthMetrics.NationalService
 {
     using Microsoft.ServiceFabric.Data;
     using Owin;
+    using System.Collections.Concurrent;
     using System.Web.Http;
     using Web.Service;
 
@@ -16,10 +17,12 @@ namespace HealthMetrics.NationalService
     public class Startup : IOwinAppBuilder
     {
         private readonly IReliableStateManager objectManager;
+        private readonly ConcurrentBag<int> updatedCounties;
 
-        public Startup(IReliableStateManager objectManager)
+        public Startup(IReliableStateManager objectManager, ConcurrentBag<int> updatedCounties)
         {
             this.objectManager = objectManager;
+            this.updatedCounties = updatedCounties;
         }
 
         /// <summary>
@@ -34,7 +37,7 @@ namespace HealthMetrics.NationalService
             config.MapHttpAttributeRoutes();
 
             FormatterConfig.ConfigureFormatters(config.Formatters);
-            UnityConfig.RegisterComponents(config, this.objectManager);
+            UnityConfig.RegisterComponents(config, this.objectManager, this.updatedCounties);
 
             appBuilder.UseWebApi(config);
 

@@ -66,8 +66,7 @@ namespace HealthMetrics.BandCreationService
 
             if (this.GenerateKnownPeople)
             {
-                bool verify = bool.Parse(serviceParameters["VerifyKnownPeople"].Value);
-                tasks.Add(Task.Run(() => this.CreateKnownActors(bag, configSettings, cancellationToken, verify)));
+                tasks.Add(Task.Run(() => this.CreateKnownActors(bag, configSettings, cancellationToken)));
             }
 
             for (int i = 0; i < this.NumberOfCreationThreads; i++)
@@ -110,6 +109,10 @@ namespace HealthMetrics.BandCreationService
 
                         IBandActor bandActor = ActorProxy.Create<IBandActor>(bandActorId, this.ActorServiceUri);
                         await bandActor.NewAsync(bandActorInfo);
+
+                        ServiceEventSource.Current.Message("Actor created {0} verifying...", bandActorId);
+
+                        await VerifyActors(new HealthIndexCalculator(this.Context), bandActorId, doctorName, randomCountyRecord, bandActorInfo, docActor, bandActor, cancellationToken);
                     }
 
                     catch (Exception e)
@@ -121,12 +124,17 @@ namespace HealthMetrics.BandCreationService
                 }
 
                 this.MaxBandsToCreatePerServiceInstance--;
+
+                ServiceEventSource.Current.ServiceMessage(this, "Created Actors, {0} remaining", this.MaxBandsToCreatePerServiceInstance);
+
                 await Task.Delay(100, cancellationToken);
             }
         }
 
-        private async Task CreateKnownActors(BandActorGenerator bag, ConfigurationSettings settings, CancellationToken cancellationToken, bool verify)
+        private async Task CreateKnownActors(BandActorGenerator bag, ConfigurationSettings settings, CancellationToken cancellationToken)
         {
+            ServiceEventSource.Current.ServiceMessage(this, "Creating known actors");
+
             CryptoRandom random = new CryptoRandom();
             FabricClient fc = new FabricClient();
             HealthIndexCalculator hic = new HealthIndexCalculator(this.Context);
@@ -163,13 +171,12 @@ namespace HealthMetrics.BandCreationService
                     IBandActor bandActor = ActorProxy.Create<IBandActor>(bandActorId, this.ActorServiceUri);
                     await bandActor.NewAsync(bandActorInfo);
 
-                    if (verify)
-                    {
-                        await VerifyActors(hic, bandActorId, doctorName, randomCountyRecord, bandActorInfo, docActor, bandActor);
-                        break;
-                    }
+                    ServiceEventSource.Current.ServiceMessage(this, "Known actors news sent, verifying");
 
-                    await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);
+                    await VerifyActors(hic, bandActorId, doctorName, randomCountyRecord, bandActorInfo, docActor, bandActor, cancellationToken);
+
+                    break;
+
                 }
                 catch (Exception e)
                 {
@@ -180,46 +187,85 @@ namespace HealthMetrics.BandCreationService
 
         private static async Task VerifyActors(
             HealthIndexCalculator hic, ActorId bandActorId, string doctorName, CountyRecord randomCountyRecord, BandInfo bandActorInfo, IDoctorActor docActor,
-            IBandActor bandActor)
+            IBandActor bandActor, CancellationToken ct)
         {
-            while (true)
+
+            ServiceEventSource.Current.Message("Verifying Actor {0}", bandActorId);
+
+            bool bandVerified = false;
+            bool doctorVerified = false;
+            int bandErrorCount = 0;
+            int doctorErrorCount = 0;
+
+            while (!ct.IsCancellationRequested && !bandVerified && !doctorVerified)
             {
-                BandDataViewModel view = await bandActor.GetBandDataAsync();
-                if (view.PersonName == bandActorInfo.PersonName)
+                await Task.Delay(100);
+
+                if (!bandVerified)
                 {
-                    if (view.CountyInfo == bandActorInfo.CountyInfo)
+                    try
                     {
-                        if (view.DoctorId == bandActorInfo.DoctorId)
+                        BandDataViewModel view = await bandActor.GetBandDataAsync();
+
+                        if (view.PersonName == bandActorInfo.PersonName)
                         {
-                            if (view.PersonId == bandActorId.GetGuidId())
+                            if (view.CountyInfo == bandActorInfo.CountyInfo)
                             {
-                                if (hic.ComputeIndex(bandActorInfo.HealthIndex) == view.HealthIndex)
+                                if (view.DoctorId == bandActorInfo.DoctorId)
                                 {
-                                    break;
-                                }
-                                else
-                                {
-                                    await bandActor.NewAsync(bandActorInfo);
-                                    await Task.Delay(100);
+                                    if (view.PersonId == bandActorId.GetGuidId())
+                                    {
+                                        if (view.HealthIndexValue == bandActorInfo.HealthIndex)
+                                        {
+                                            bandVerified = true;
+                                            ServiceEventSource.Current.Message("Band actor verified.");
+                                        }
+                                        else
+                                        {
+                                            await bandActor.NewAsync(bandActorInfo);
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            }
-
-            while (true)
-            {
-                Tuple<CountyRecord, string> info = await docActor.GetInfoAndNameAsync();
-                if (info.Item2 == String.Format("Dr. {0}", doctorName)
-                    && info.Item1 == randomCountyRecord)
-                {
-                    break;
+                    catch (Exception e)
+                    {
+                        bandErrorCount++;
+                        ServiceEventSource.Current.Message("Exception Count {0} verifying band actor, retrying. {1}", bandErrorCount, e);
+                    }
                 }
                 else
                 {
-                    await docActor.NewAsync(doctorName, randomCountyRecord);
-                    await Task.Delay(100);
+                    ServiceEventSource.Current.Message("band already verified, skipping");
+                }
+
+
+                if (!doctorVerified)
+                {
+                    try
+                    {
+                        Tuple<CountyRecord, string> info = await docActor.GetInfoAndNameAsync();
+                        if (info.Item2 == String.Format("Dr. {0}", doctorName)
+                            && info.Item1 == randomCountyRecord)
+                        {
+                            doctorVerified = true;
+                            ServiceEventSource.Current.Message("Doctor actor verified.");
+                        }
+                        else
+                        {
+                            await docActor.NewAsync(doctorName, randomCountyRecord);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        doctorErrorCount++;
+                        ServiceEventSource.Current.Message("Exception Count {0} verifying doctor actor, retrying. {1}", doctorErrorCount, e);
+                    }
+                }
+                else
+                {
+                    ServiceEventSource.Current.Message("doctor already verified, skipping");
                 }
             }
         }

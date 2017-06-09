@@ -9,6 +9,7 @@ namespace HealthMetrics.NationalService
     using HealthMetrics.NationalService.Models;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -22,10 +23,12 @@ namespace HealthMetrics.NationalService
     {
         private const string HealthStatusDictionary = "healthStatusDictionary";
         private readonly IReliableStateManager stateManager;
+        private readonly ConcurrentBag<int> updatedCounties;
 
-        public NationalHealthController(IReliableStateManager stateManager)
+        public NationalHealthController(IReliableStateManager stateManager, ConcurrentBag<int> updatedCounties)
         {
             this.stateManager = stateManager;
+            this.updatedCounties = updatedCounties;
         }
 
         /// <summary>
@@ -52,6 +55,8 @@ namespace HealthMetrics.NationalService
                         status.HealthReportCount,
                         status.AverageHealthIndex));
 
+                this.updatedCounties.Add(countyId);
+
                 await tx.CommitAsync();
             }
 
@@ -70,18 +75,29 @@ namespace HealthMetrics.NationalService
             IReliableDictionary<int, NationalCountyStats> dictionary =
                 await this.stateManager.GetOrAddAsync<IReliableDictionary<int, NationalCountyStats>>(HealthStatusDictionary);
 
-            using (ITransaction tx = this.stateManager.CreateTransaction())
-            {
-                IAsyncEnumerator<KeyValuePair<int, NationalCountyStats>> enumerator = (await dictionary.CreateEnumerableAsync(tx)).GetAsyncEnumerator();
-                IList<KeyValuePair<int, NationalCountyStats>> items = new List<KeyValuePair<int, NationalCountyStats>>();
+            List<CountyHealth> countyData = new List<CountyHealth>();
 
-                while (await enumerator.MoveNextAsync(CancellationToken.None))
+
+            IList<int> countiesToProcess = this.updatedCounties.ToArray();
+
+            foreach (int countyId in countiesToProcess)
+            {
+                using (ITransaction tx = this.stateManager.CreateTransaction())
                 {
-                    items.Add(enumerator.Current);
+                    var result = await dictionary.TryGetValueAsync(tx, countyId);
+                    if (result.HasValue)
+                    {
+                        countyData.Add(new CountyHealth() { Id = countyId, Health = result.Value.AverageHealthIndex });
+                    }
+
+                    await tx.CommitAsync();
                 }
 
-                return this.Ok(items.Select(item => new CountyHealth() {CountyId = item.Key, Health = item.Value.AverageHealthIndex}).ToList());
+                int tmp = countyId;
+                this.updatedCounties.TryTake(out tmp);
             }
+
+            return this.Ok(countyData);
         }
     }
 }

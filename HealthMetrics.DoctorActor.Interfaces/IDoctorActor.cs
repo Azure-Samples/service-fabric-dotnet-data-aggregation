@@ -12,11 +12,11 @@ namespace HealthMetrics.DoctorActor.Interfaces
 
     public interface IDoctorActor : IActor
     {
-        Task ReportHealthAsync(Guid personId, string personName, HealthIndex healthIndex, HealthIndex heartRateIndex);
+        Task ReportHealthAsync(Guid personId, string personName, HealthIndex healthIndex);
 
         Task NewAsync(string name, CountyRecord countyRecord);
 
-        Task<DoctorDataViewModel> GetPatientsAsync();
+        //Task<DoctorDataViewModel> GetPatientsAsync();
 
         Task<Tuple<CountyRecord, string>> GetInfoAndNameAsync();
     }

@@ -5,12 +5,13 @@
 
 namespace HealthMetrics.NationalService.Models
 {
+    using Common;
     using System.Runtime.Serialization;
 
     [DataContract]
     internal struct NationalCountyStats
     {
-        public NationalCountyStats(int doctorCount, int patientCount, int healthReportCount, int averageHealthIndex)
+        public NationalCountyStats(int doctorCount, int patientCount, long healthReportCount, HealthIndex averageHealthIndex)
         {
             this.AverageHealthIndex = averageHealthIndex;
             this.DoctorCount = doctorCount;
@@ -25,9 +26,9 @@ namespace HealthMetrics.NationalService.Models
         public int PatientCount { get; private set; }
 
         [DataMember]
-        public int HealthReportCount { get; private set; }
+        public long HealthReportCount { get; private set; }
 
         [DataMember]
-        public int AverageHealthIndex { get; private set; }
+        public HealthIndex AverageHealthIndex { get; private set; }
     }
 }

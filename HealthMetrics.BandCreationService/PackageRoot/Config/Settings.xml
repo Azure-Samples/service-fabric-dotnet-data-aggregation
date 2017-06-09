@@ -11,12 +11,11 @@
     <Parameter Name="DoctorsPerPopulation" Value="1" />
     <Parameter Name="PopulationFactor" Value="20000" />
     <Parameter Name="GenerateKnownPeople" Value="" MustOverride="true"/>
-    <Parameter Name="VerifyKnownPeople" Value="true" />
-    <Parameter Name="KnownPatientName" Value="Scott Hanselman" />
-    <Parameter Name="KnownDoctorName" Value="Lilian Rivera" />
+    <Parameter Name="KnownPatientName" Value="Matt Snider" />
+    <Parameter Name="KnownDoctorName" Value="Ed Stevenson" />
     <Parameter Name="KnownPatientId" Value="" MustOverride="true" />
     <Parameter Name="KnownDoctorId" Value="" MustOverride="true" />
-    <Parameter Name="KnownCountyIdIndex" Value="2231" />
+    <Parameter Name="KnownCountyIdIndex" Value="1870" />
   </Section>
 </Settings>
 

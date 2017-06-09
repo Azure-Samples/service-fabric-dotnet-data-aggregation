@@ -7,10 +7,4 @@
   <Section Name="HealthIndexCalculator.Settings">
     <Parameter Name="ScoreCalculationMode" Value="" MustOverride="true"/>
   </Section>
-  <Section Name="ReplicatorConfig">
-    <Parameter Name="MaxCopyQueueSize" Value="4096" />
-    <Parameter Name="MaxPrimaryReplicationQueueSize" Value="8192" />
-    <Parameter Name="MaxSecondaryReplicationQueueSize" Value="4096" />
-  </Section>
-  <Section Name="ReplicatorSecurityConfig" />
 </Settings>

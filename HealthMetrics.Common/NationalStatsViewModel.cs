@@ -5,17 +5,19 @@
 
 namespace HealthMetrics.Common
 {
+    using System;
     using System.Runtime.Serialization;
 
     [DataContract]
     public struct NationalStatsViewModel
     {
-        public NationalStatsViewModel(int doctorCount, int patientCount, int healthReportCount, int averageHealthIndex)
+        public NationalStatsViewModel(int doctorCount, int patientCount, long healthReportCount, int averageHealthIndex, DateTimeOffset creationDateTime)
         {
             this.AverageHealthIndex = averageHealthIndex;
             this.DoctorCount = doctorCount;
             this.PatientCount = patientCount;
             this.HealthReportCount = healthReportCount;
+            this.StartTimeOffset = creationDateTime;
         }
 
         [DataMember]
@@ -25,9 +27,12 @@ namespace HealthMetrics.Common
         public int PatientCount { get; private set; }
 
         [DataMember]
-        public int HealthReportCount { get; private set; }
+        public long HealthReportCount { get; private set; }
 
         [DataMember]
         public int AverageHealthIndex { get; private set; }
+
+        [DataMember]
+        public DateTimeOffset StartTimeOffset { get; private set; }
     }
 }

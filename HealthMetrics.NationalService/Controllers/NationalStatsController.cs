@@ -9,6 +9,7 @@ namespace HealthMetrics.NationalService
     using HealthMetrics.NationalService.Models;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
+    using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
@@ -20,6 +21,8 @@ namespace HealthMetrics.NationalService
     public class NationalStatsController : ApiController
     {
         private const string HealthStatusDictionary = "healthStatusDictionary";
+        private const string TimeStatsDictionary = "TimeTracker";
+
         private readonly IReliableStateManager stateManager;
 
         public NationalStatsController(IReliableStateManager stateManager)
@@ -35,15 +38,24 @@ namespace HealthMetrics.NationalService
         [Route("national/stats")]
         public async Task<NationalStatsViewModel> Get()
         {
-            IReliableDictionary<int, NationalCountyStats> dictionary =
-                await this.stateManager.GetOrAddAsync<IReliableDictionary<int, NationalCountyStats>>(HealthStatusDictionary);
+            var dictionary = await this.stateManager.GetOrAddAsync<IReliableDictionary<int, NationalCountyStats>>(HealthStatusDictionary);
+            var timeDictionary = await this.stateManager.GetOrAddAsync<IReliableDictionary<string, DateTimeOffset>>(TimeStatsDictionary);
 
             int totalDoctorCount = 0;
             int totalPatientCount = 0;
-            int totalHealthReportCount = 0;
+            long totalHealthReportCount = 0;
+            DateTimeOffset offset = DateTimeOffset.MinValue;
 
             using (ITransaction tx = this.stateManager.CreateTransaction())
             {
+
+                var creationTimeResult = await timeDictionary.TryGetValueAsync(tx, "StartTime");
+
+                if(creationTimeResult.HasValue)
+                {
+                    offset = creationTimeResult.Value;
+                }
+
                 IAsyncEnumerator<KeyValuePair<int, NationalCountyStats>> enumerator = (await dictionary.CreateEnumerableAsync(tx)).GetAsyncEnumerator();
 
                 while (await enumerator.MoveNextAsync(CancellationToken.None))
@@ -59,7 +71,7 @@ namespace HealthMetrics.NationalService
                     }
                 }
 
-                return new NationalStatsViewModel(totalDoctorCount, totalPatientCount, totalHealthReportCount, 0);
+                return new NationalStatsViewModel(totalDoctorCount, totalPatientCount, totalHealthReportCount, 0, offset);
             }
         }
     }

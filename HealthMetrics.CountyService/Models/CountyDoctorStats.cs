@@ -11,7 +11,7 @@ namespace HealthMetrics.CountyService
     [DataContract]
     internal struct CountyDoctorStats
     {
-        public CountyDoctorStats(int patientCount, int healthReportCount, string doctorName, HealthIndex averageHealthIndex)
+        public CountyDoctorStats(int patientCount, long healthReportCount, string doctorName, HealthIndex averageHealthIndex)
         {
             this.PatientCount = patientCount;
             this.HealthReportCount = healthReportCount;
@@ -26,7 +26,7 @@ namespace HealthMetrics.CountyService
         public int PatientCount { get; private set; }
 
         [DataMember]
-        public int HealthReportCount { get; private set; }
+        public long HealthReportCount { get; private set; }
 
         [DataMember]
         public HealthIndex AverageHealthIndex { get; private set; }

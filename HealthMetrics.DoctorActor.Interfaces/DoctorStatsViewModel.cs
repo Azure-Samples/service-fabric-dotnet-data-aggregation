@@ -5,12 +5,13 @@
 
 namespace HealthMetrics.DoctorActor.Interfaces
 {
+    using Common;
     using System.Runtime.Serialization;
 
     [DataContract]
     public struct DoctorStatsViewModel
     {
-        public DoctorStatsViewModel(int patientCount, int healthReportCount, int averageHealthIndex, string doctorName)
+        public DoctorStatsViewModel(int patientCount, long healthReportCount, HealthIndex averageHealthIndex, string doctorName)
         {
             this.PatientCount = patientCount;
             this.HealthReportCount = healthReportCount;
@@ -22,10 +23,10 @@ namespace HealthMetrics.DoctorActor.Interfaces
         public int PatientCount { get; private set; }
 
         [DataMember]
-        public int HealthReportCount { get; private set; }
+        public long HealthReportCount { get; private set; }
 
         [DataMember]
-        public int AverageHealthIndex { get; private set; }
+        public HealthIndex AverageHealthIndex { get; private set; }
 
         [DataMember]
         public string DoctorName { get; private set; }

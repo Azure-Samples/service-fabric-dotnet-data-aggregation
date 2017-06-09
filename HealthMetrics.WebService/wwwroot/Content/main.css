@@ -172,7 +172,7 @@ footer {
     color: black;
 }
 
-.healthBox-black {
+.healthBox-noinfo {
     width: 25px;
     height: 20px;
     border: 1px solid #DDD;

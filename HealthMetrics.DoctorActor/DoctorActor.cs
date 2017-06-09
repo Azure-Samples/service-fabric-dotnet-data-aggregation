@@ -14,6 +14,7 @@ namespace HealthMetrics.DoctorActor
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using Newtonsoft.Json;
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Fabric;
     using System.Fabric.Description;
@@ -22,7 +23,7 @@ namespace HealthMetrics.DoctorActor
     using System.Net;
     using System.Threading.Tasks;
 
-    [StatePersistence(StatePersistence.Persisted)]
+    [StatePersistence(StatePersistence.Volatile)]
     internal class DoctorActor : Actor, IDoctorActor, IRemindable
     {
         private const string GenerateHealthDataAsyncReminder = "SendHealthDataToCountyAsync";
@@ -43,34 +44,28 @@ namespace HealthMetrics.DoctorActor
 
         public async Task NewAsync(string name, CountyRecord countyRecord)
         {
-            ConditionalValue<DoctorActorState> result = await this.StateManager.TryGetStateAsync<DoctorActorState>("DoctorActorState");
+            await this.StateManager.SetStateAsync<string>("Name", name);
+            await this.StateManager.SetStateAsync<CountyRecord>("CountyRecord", countyRecord);
+            await this.StateManager.SetStateAsync<long>("HealthReportCount", 0);
+            await this.StateManager.SetStateAsync<Dictionary<Guid, DoctorPatientState>>("PersonHealthStatuses", new Dictionary<Guid, DoctorPatientState>());
+            await this.RegisterReminderAsync(GenerateHealthDataAsyncReminder, null, TimeSpan.FromSeconds(this.random.Next(5, 15)), TimeSpan.FromSeconds(5));
 
-            if (!result.HasValue)
-            {
-                DoctorActorState state = new DoctorActorState();
-
-                state = new DoctorActorState();
-                state.Name = "Dr. " + name;
-                state.CountyInfo = countyRecord;
-                state.HealthReportCount = 0;
-                await this.RegisterReminderAsync(GenerateHealthDataAsyncReminder, null, TimeSpan.FromSeconds(this.random.Next(5, 15)), TimeSpan.FromSeconds(5));
-                ActorEventSource.Current.ActorMessage(this, "Doctor created. ID: {0}. Name: {1}", this.Id.GetGuidId(), name);
-                await this.StateManager.SetStateAsync("DoctorActorState", state);
-            }
+            ActorEventSource.Current.ActorMessage(this, "Doctor created. ID: {0}. Name: {1}", this.Id.GetGuidId(), name);
         }
 
-        public async Task ReportHealthAsync(Guid personId, string personName, HealthIndex healthIndex, HealthIndex heartRateIndex)
+        public async Task ReportHealthAsync(Guid personId, string personName, HealthIndex healthIndex)
         {
-            ConditionalValue<DoctorActorState> doctorActorStateResult = await this.StateManager.TryGetStateAsync<DoctorActorState>("DoctorActorState");
+            ConditionalValue<Dictionary<Guid, DoctorPatientState>> patientReportResult =
+                await this.StateManager.TryGetStateAsync<Dictionary<Guid, DoctorPatientState>>("PersonHealthStatuses");
 
-            if (doctorActorStateResult.HasValue)
+            ConditionalValue<long> healthReportCountResult = await this.StateManager.TryGetStateAsync<long>("HealthReportCount");
+
+            if (patientReportResult.HasValue)
             {
-                DoctorActorState state = doctorActorStateResult.Value;
+                patientReportResult.Value[personId] = new DoctorPatientState(personId, personName, healthIndex);
 
-                state.PersonHealthStatuses[personId] = new DoctorPatientState(personId, personName, healthIndex, heartRateIndex);
-                state.HealthReportCount++;
-
-                await this.StateManager.SetStateAsync<DoctorActorState>("DoctorActorState", state);
+                await this.StateManager.SetStateAsync<Dictionary<Guid, DoctorPatientState>>("PersonHealthStatuses", patientReportResult.Value);
+                await this.StateManager.SetStateAsync<long>("HealthReportCount", healthReportCountResult.Value + 1);
 
                 ActorEventSource.Current.Message(
                     "DoctorActor {0} Recieved health report from band {1} with value {2}",
@@ -82,58 +77,63 @@ namespace HealthMetrics.DoctorActor
             return;
         }
 
-        public async Task<DoctorDataViewModel> GetPatientsAsync()
-        {
-            try
-            {
-                ConditionalValue<DoctorActorState> doctorActorStateResult = await this.StateManager.TryGetStateAsync<DoctorActorState>("DoctorActorState");
+        //public async Task<DoctorDataViewModel> GetPatientsAsync()
+        //{
+        //    try
+        //    {
+        //        ConditionalValue<long> healthReportCountResult = await this.StateManager.TryGetStateAsync<long>("HealthReportCount");
 
-                if (doctorActorStateResult.HasValue)
-                {
-                    DoctorActorState state = doctorActorStateResult.Value;
+        //        if (healthReportCountResult.HasValue)
+        //        {
 
-                    if (state.HealthReportCount == 0)
-                    {
-                        return new DoctorDataViewModel(state.Name, 0, state.CountyInfo, Enumerable.Empty<PatientDataViewModel>());
-                    }
+        //            var name = await this.StateManager.GetStateAsync<string>("Name");
+        //            var countyRecord = await this.StateManager.GetStateAsync<CountyRecord>("CountyRecord");
+        //            var healthReportCount = await this.StateManager.GetStateAsync<long>("HealthReportCount");
+        //            var patientHealthReports = await this.StateManager.GetStateAsync<Dictionary<Guid, DoctorPatientState>>("PersonHealthStatuses");
 
-                    int patientAverage = await this.GetAveragePatientHealthInfoAsync();
+        //            if (healthReportCountResult.Value == 0)
+        //            {
+        //                return new DoctorDataViewModel(name, this.indexCalculator.ComputeIndex(-1), countyRecord, Enumerable.Empty<PatientDataViewModel>());
+        //            }
 
-                    ActorEventSource.Current.ActorMessage(
-                        this,
-                        "Doctor {0} sending doctor view for county {1} with average {2}",
-                        this.Id.GetGuidId(),
-                        state.CountyInfo,
-                        patientAverage);
+        //            HealthIndex patientAverage = await this.GetAveragePatientHealthInfoAsync();
 
-                    return new DoctorDataViewModel(
-                        state.Name,
-                        patientAverage,
-                        state.CountyInfo,
-                        state.PersonHealthStatuses.Select(
-                            x =>
-                                new PatientDataViewModel(
-                                    x.Key,
-                                    x.Value.Name,
-                                    this.indexCalculator.ComputeIndex(x.Value.HealthIndex),
-                                    this.indexCalculator.ComputeIndex(x.Value.HeartRateIndex))));
-                }
-            }
-            catch (Exception e)
-            {
-                throw new ArgumentException(string.Format("Exception inside doctor actor {0}|{1}|{2}", this.Id, this.Id.Kind, e));
-            }
+        //            ActorEventSource.Current.ActorMessage(
+        //                this,
+        //                "Doctor {0} sending doctor view for county {1} with average {2}",
+        //                this.Id.GetGuidId(),
+        //                countyRecord,
+        //                patientAverage);
 
-            throw new ArgumentException(string.Format("No actor state in actor {0}", this.Id));
-        }
+        //            return new DoctorDataViewModel(
+        //                name,
+        //                patientAverage,
+        //                countyRecord,
+        //                patientHealthReports.Select(
+        //                    x =>
+        //                        new PatientDataViewModel(
+        //                            x.Key,
+        //                            x.Value.Name,
+        //                            x.Value.HealthIndex)));
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        throw new ArgumentException(string.Format("Exception inside doctor actor {0}|{1}|{2}", this.Id, this.Id.Kind, e));
+        //    }
+
+        //    throw new ArgumentException(string.Format("No actor state in actor {0}", this.Id));
+        //}
 
         public async Task<Tuple<CountyRecord, string>> GetInfoAndNameAsync()
         {
-            ConditionalValue<DoctorActorState> doctorActorStateResult = await this.StateManager.TryGetStateAsync<DoctorActorState>("DoctorActorState");
+            var healthReportCountResult = await this.StateManager.TryGetStateAsync<long>("HealthReportCount");
 
-            if (doctorActorStateResult.HasValue)
+            if (healthReportCountResult.HasValue)
             {
-                return new Tuple<CountyRecord, string>(doctorActorStateResult.Value.CountyInfo, doctorActorStateResult.Value.Name);
+                var name = await this.StateManager.GetStateAsync<string>("Name");
+                var countyRecord = await this.StateManager.GetStateAsync<CountyRecord>("CountyRecord");
+                return new Tuple<CountyRecord, string>(countyRecord, name);
             }
 
             throw new ArgumentException(string.Format("No actor state in actor {0}", this.Id));
@@ -159,20 +159,25 @@ namespace HealthMetrics.DoctorActor
         {
             try
             {
-                ConditionalValue<DoctorActorState> doctorStateResult = await this.StateManager.TryGetStateAsync<DoctorActorState>("DoctorActorState");
-                if (doctorStateResult.HasValue)
-                {
-                    DoctorActorState state = doctorStateResult.Value;
 
-                    if (state.PersonHealthStatuses.Count > 0)
+                ConditionalValue<long> healthReportCountResult = await this.StateManager.TryGetStateAsync<long>("HealthReportCount");
+
+                if (healthReportCountResult.HasValue)
+                {
+                    var name = await this.StateManager.GetStateAsync<string>("Name");
+                    var countyRecord = await this.StateManager.GetStateAsync<CountyRecord>("CountyRecord");
+                    var healthReportCount = healthReportCountResult.Value;
+                    var patientHealthReports = await this.StateManager.GetStateAsync<Dictionary<Guid, DoctorPatientState>>("PersonHealthStatuses");
+
+                    if (healthReportCount > 0)
                     {
                         DoctorStatsViewModel payload = new DoctorStatsViewModel(
-                            state.PersonHealthStatuses.Count,
-                            state.HealthReportCount,
+                            patientHealthReports.Count,
+                            healthReportCount,
                             await this.GetAveragePatientHealthInfoAsync(),
-                            state.Name);
+                            name);
 
-                        ServicePartitionKey partitionKey = new ServicePartitionKey(state.CountyInfo.CountyId);
+                        ServicePartitionKey partitionKey = new ServicePartitionKey(countyRecord.CountyId);
                         Guid id = this.Id.GetGuidId();
 
                         ServicePartitionClient<HttpCommunicationClient> servicePartitionClient =
@@ -195,8 +200,8 @@ namespace HealthMetrics.DoctorActor
                                 request.Method = "POST";
                                 request.ContentType = "application/json";
                                 request.KeepAlive = false;
-                                request.Timeout = (int) client.OperationTimeout.TotalMilliseconds;
-                                request.ReadWriteTimeout = (int) client.ReadWriteTimeout.TotalMilliseconds;
+                                request.Timeout = (int)client.OperationTimeout.TotalMilliseconds;
+                                request.ReadWriteTimeout = (int)client.ReadWriteTimeout.TotalMilliseconds;
 
                                 using (Stream requestStream = request.GetRequestStream())
                                 {
@@ -209,7 +214,7 @@ namespace HealthMetrics.DoctorActor
                                             buffer.Flush();
                                         }
 
-                                        using (HttpWebResponse response = (HttpWebResponse) request.GetResponse())
+                                        using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                                         {
                                             ActorEventSource.Current.Message("Doctor Sent Data to County: {0}", serviceAddress);
                                             return Task.FromResult(true);
@@ -243,28 +248,29 @@ namespace HealthMetrics.DoctorActor
         }
 
 
-        private async Task<int> GetAveragePatientHealthInfoAsync()
+        private async Task<HealthIndex> GetAveragePatientHealthInfoAsync()
         {
-            int avgHealth = 0;
+            var healthReportCountResult = await this.StateManager.TryGetStateAsync<long>("HealthReportCount");
 
-            ConditionalValue<DoctorActorState> doctorActorStateResult = await this.StateManager.TryGetStateAsync<DoctorActorState>("DoctorActorState");
-
-            if (doctorActorStateResult.HasValue)
+            if (healthReportCountResult.HasValue && healthReportCountResult.Value > 0)
             {
-                if (doctorActorStateResult.Value.HealthReportCount > 0)
-                {
-                    avgHealth = this.indexCalculator.ComputeAverageIndex(doctorActorStateResult.Value.PersonHealthStatuses.Select(x => x.Value.HealthIndex));
-                    ActorEventSource.Current.ActorMessage(this, "Average patient Health Calculated: {0}", avgHealth);
-                }
+                var patientHealthReports = await this.StateManager.GetStateAsync<Dictionary<Guid, DoctorPatientState>>("PersonHealthStatuses");
+                HealthIndex avgHealth = this.indexCalculator.ComputeAverageIndex(patientHealthReports.Select(x => x.Value.HealthIndex));
+                ActorEventSource.Current.ActorMessage(this, "Average patient Health Calculated: {0}", avgHealth);
+                return avgHealth;
+                
             }
-
-            return avgHealth;
+            else
+            {
+                ActorEventSource.Current.ActorMessage(this, "No patient health available");
+                return this.indexCalculator.ComputeIndex(-1);
+                
+            }
         }
 
         private void UpdateConfigSettings(ConfigurationSettings configSettings)
         {
             KeyedCollection<string, ConfigurationProperty> parameters = configSettings.Sections["HealthMetrics.DoctorActor.Settings"].Parameters;
-
             this.countyServiceInstanceUri = new ServiceUriBuilder(parameters["CountyServiceInstanceName"].Value).ToUri();
             this.bandActorServiceInstanceUri = new ServiceUriBuilder(parameters["BandActorServiceInstanceName"].Value).ToUri();
         }

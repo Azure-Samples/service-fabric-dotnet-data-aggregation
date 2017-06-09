@@ -7,18 +7,19 @@ namespace HealthMetrics.NationalService
 {
     using Microsoft.Practices.Unity;
     using Microsoft.ServiceFabric.Data;
+    using System.Collections.Concurrent;
     using System.Web.Http;
     using Unity.WebApi;
 
     public static class UnityConfig
     {
-        public static void RegisterComponents(HttpConfiguration config, IReliableStateManager objectManager)
+        public static void RegisterComponents(HttpConfiguration config, IReliableStateManager objectManager, ConcurrentBag<int> updatedCounties)
         {
             UnityContainer container = new UnityContainer();
 
             container.RegisterType<NationalHealthController>(
                 new TransientLifetimeManager(),
-                new InjectionConstructor(objectManager));
+                new InjectionConstructor(objectManager, updatedCounties));
 
             container.RegisterType<NationalStatsController>(
                 new TransientLifetimeManager(),
