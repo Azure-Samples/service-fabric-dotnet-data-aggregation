@@ -43,7 +43,7 @@ namespace HealthMetrics.Common
             int targetTotalReplicas = description.TargetReplicaSetSize;
             if (description.PartitionSchemeDescription is UniformInt64RangePartitionSchemeDescription)
             {
-                targetTotalReplicas *= ((UniformInt64RangePartitionSchemeDescription)description.PartitionSchemeDescription).PartitionCount;
+                targetTotalReplicas *= ((UniformInt64RangePartitionSchemeDescription) description.PartitionSchemeDescription).PartitionCount;
             }
 
             ServicePartitionList partitions = await this.Client.QueryManager.GetPartitionListAsync(serviceInstanceUri);

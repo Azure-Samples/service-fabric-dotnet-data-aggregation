@@ -5,10 +5,10 @@
 
 namespace HealthMetrics.DoctorActor
 {
-    using Microsoft.ServiceFabric.Actors.Runtime;
     using System;
     using System.Diagnostics.Tracing;
     using System.Fabric;
+    using Microsoft.ServiceFabric.Actors.Runtime;
 
     [EventSource(Name = "MyCompany-HealthMetrics-HealthMetrics.DoctorActor")]
     internal sealed class ActorEventSource : EventSource
@@ -70,17 +70,17 @@ namespace HealthMetrics.DoctorActor
 
         [Event(ActorMessageEventId, Level = EventLevel.Informational, Message = "{9}")]
         private
-        void ActorMessage(
-            string actorType,
-            string actorId,
-            string applicationTypeName,
-            string applicationName,
-            string serviceTypeName,
-            string serviceName,
-            Guid partitionId,
-            long replicaOrInstanceId,
-            string nodeName,
-            string message)
+            void ActorMessage(
+                string actorType,
+                string actorId,
+                string applicationTypeName,
+                string applicationName,
+                string serviceTypeName,
+                string serviceName,
+                Guid partitionId,
+                long replicaOrInstanceId,
+                string nodeName,
+                string message)
         {
             this.WriteEvent(
                 ActorMessageEventId,

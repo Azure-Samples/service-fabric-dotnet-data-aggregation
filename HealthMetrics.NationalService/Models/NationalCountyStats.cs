@@ -5,8 +5,8 @@
 
 namespace HealthMetrics.NationalService.Models
 {
-    using Common;
     using System.Runtime.Serialization;
+    using HealthMetrics.Common;
 
     [DataContract]
     internal struct NationalCountyStats

@@ -5,13 +5,11 @@
 
 namespace HealthMetrics.WebService
 {
-    using Microsoft.ServiceFabric.Services.Communication.Runtime;
-    using Microsoft.ServiceFabric.Services.Runtime;
     using System.Collections.Generic;
     using System.Fabric;
+    using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using Microsoft.ServiceFabric.Services.Runtime;
     using Web.Service;
-    using System.Threading;
-    using System.Threading.Tasks;
 
     public class Service : StatelessService
     {

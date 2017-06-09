@@ -5,17 +5,17 @@
 
 namespace HealthMetrics.NationalService
 {
-    using Microsoft.ServiceFabric.Data;
-    using Microsoft.ServiceFabric.Services.Communication.Runtime;
-    using Microsoft.ServiceFabric.Services.Runtime;
-    using System.Collections.Generic;
-    using Microsoft.ServiceFabric.Data.Collections;
-    using System.Fabric;
-    using Web.Service;
-    using System.Threading;
-    using System.Threading.Tasks;
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Fabric;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Data;
+    using Microsoft.ServiceFabric.Data.Collections;
+    using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using Microsoft.ServiceFabric.Services.Runtime;
+    using Web.Service;
 
     public class Service : StatefulService
     {
@@ -24,7 +24,6 @@ namespace HealthMetrics.NationalService
 
         public Service(StatefulServiceContext serviceContext) : base(serviceContext)
         {
-
         }
 
         public Service(StatefulServiceContext serviceContext, IReliableStateManagerReplica reliableStateManagerReplica)
@@ -50,18 +49,18 @@ namespace HealthMetrics.NationalService
             {
                 try
                 {
-                    var timeDictionary = await StateManager.GetOrAddAsync<IReliableDictionary<string, DateTimeOffset>>("TimeTracker");
+                    IReliableDictionary<string, DateTimeOffset> timeDictionary =
+                        await this.StateManager.GetOrAddAsync<IReliableDictionary<string, DateTimeOffset>>("TimeTracker");
 
                     using (ITransaction tx = this.StateManager.CreateTransaction())
                     {
-                        var result = await timeDictionary.TryGetValueAsync(tx, "StartTime");
+                        ConditionalValue<DateTimeOffset> result = await timeDictionary.TryGetValueAsync(tx, "StartTime");
                         if (!result.HasValue)
                         {
                             await timeDictionary.SetAsync(tx, "StartTime", DateTimeOffset.UtcNow);
                         }
 
                         await tx.CommitAsync();
-                        
                     }
 
                     return;
@@ -70,14 +69,20 @@ namespace HealthMetrics.NationalService
                 {
                     // transient error. Retry.
                     retryCount++;
-                    ServiceEventSource.Current.ServiceMessage(this, "NationalService encountered an exception trying to record start time: TimeoutException in RunAsync: {0}", te.ToString());
+                    ServiceEventSource.Current.ServiceMessage(
+                        this,
+                        "NationalService encountered an exception trying to record start time: TimeoutException in RunAsync: {0}",
+                        te.ToString());
                     continue;
                 }
                 catch (FabricTransientException fte)
                 {
                     // transient error. Retry.
                     retryCount++;
-                    ServiceEventSource.Current.ServiceMessage(this, "NationalService encountered an exception trying to record start time: FabricTransientException in RunAsync: {0}", fte.ToString());
+                    ServiceEventSource.Current.ServiceMessage(
+                        this,
+                        "NationalService encountered an exception trying to record start time: FabricTransientException in RunAsync: {0}",
+                        fte.ToString());
                     continue;
                 }
                 catch (FabricNotPrimaryException)

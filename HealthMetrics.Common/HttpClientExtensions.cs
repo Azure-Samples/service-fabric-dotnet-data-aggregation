@@ -5,12 +5,12 @@
 
 namespace System.Net.Http
 {
-    using HealthMetrics.Common;
-    using Microsoft.ServiceFabric.Services.Client;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
+    using HealthMetrics.Common;
+    using Microsoft.ServiceFabric.Services.Client;
+    using Microsoft.ServiceFabric.Services.Communication.Client;
 
     public static class HttpClientExtensions
     {
@@ -53,19 +53,19 @@ namespace System.Net.Http
             return servicePartitionClient.InvokeWithRetryAsync(
                 async
                     client =>
-                    {
-                        HttpRequestMessage request = createRequest();
+                {
+                    HttpRequestMessage request = createRequest();
 
-                        Uri newUri = new Uri(client.BaseAddress, request.RequestUri.OriginalString.TrimStart('/'));
+                    Uri newUri = new Uri(client.BaseAddress, request.RequestUri.OriginalString.TrimStart('/'));
 
-                        request.RequestUri = newUri;
+                    request.RequestUri = newUri;
 
-                        HttpResponseMessage response = await instance.SendAsync(request, cancellationToken);
+                    HttpResponseMessage response = await instance.SendAsync(request, cancellationToken);
 
-                        response.EnsureSuccessStatusCode();
+                    response.EnsureSuccessStatusCode();
 
-                        return response;
-                    });
+                    return response;
+                });
         }
     }
 }

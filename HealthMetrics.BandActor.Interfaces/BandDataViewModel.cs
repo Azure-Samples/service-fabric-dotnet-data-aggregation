@@ -5,10 +5,10 @@
 
 namespace HealthMetrics.BandActor.Interfaces
 {
-    using HealthMetrics.Common;
     using System;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
+    using HealthMetrics.Common;
 
     [DataContract]
     public struct BandDataViewModel

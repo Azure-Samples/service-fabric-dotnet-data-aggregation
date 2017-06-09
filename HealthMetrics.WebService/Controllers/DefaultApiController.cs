@@ -5,12 +5,6 @@
 
 namespace HealthMetrics.WebService.Controllers
 {
-    using HealthMetrics.BandActor.Interfaces;
-    using HealthMetrics.Common;
-    using HealthMetrics.DoctorActor.Interfaces;
-    using Microsoft.ServiceFabric.Actors;
-    using Microsoft.ServiceFabric.Actors.Client;
-    using Microsoft.ServiceFabric.Actors.Query;
     using System;
     using System.Collections.ObjectModel;
     using System.Fabric;
@@ -20,6 +14,11 @@ namespace HealthMetrics.WebService.Controllers
     using System.Threading;
     using System.Threading.Tasks;
     using System.Web.Http;
+    using HealthMetrics.BandActor.Interfaces;
+    using HealthMetrics.Common;
+    using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Client;
+    using Microsoft.ServiceFabric.Actors.Query;
 
     [RoutePrefix("api")]
     public class DefaultApiController : ApiController
@@ -121,19 +120,14 @@ namespace HealthMetrics.WebService.Controllers
             }
         }
 
-        private string GetSetting(string key)
-        {
-            return this.configPackageSettings[key].Value;
-        }
-
         [HttpGet]
         [Route("settings/GetIds")]
         public async Task<string> GetPatientId()
         {
             if (bool.Parse(this.configPackageSettings["GenerateKnownPeople"].Value))
             {
-                var patientId = this.configPackageSettings["KnownPatientId"].Value;
-                var doctorId = this.configPackageSettings["KnownDoctorId"].Value;
+                string patientId = this.configPackageSettings["KnownPatientId"].Value;
+                string doctorId = this.configPackageSettings["KnownDoctorId"].Value;
 
                 return string.Format("{0}|{1}", patientId, doctorId);
             }
@@ -143,6 +137,11 @@ namespace HealthMetrics.WebService.Controllers
             }
         }
 
+        private string GetSetting(string key)
+        {
+            return this.configPackageSettings[key].Value;
+        }
+
         private async Task<string> GetRandomIdsAsync()
         {
             ServiceUriBuilder serviceUri = new ServiceUriBuilder(this.GetSetting("BandActorServiceInstanceName"));
@@ -150,7 +149,7 @@ namespace HealthMetrics.WebService.Controllers
 
             CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
 
-            var token = cts.Token;
+            CancellationToken token = cts.Token;
 
             FabricClient fc = new FabricClient();
             ServicePartitionList partitions = await fc.QueryManager.GetPartitionListAsync(fabricServiceName);
@@ -163,7 +162,7 @@ namespace HealthMetrics.WebService.Controllers
                 {
                     foreach (Partition p in partitions)
                     {
-                        var partitionKey = ((Int64RangePartitionInformation)p.PartitionInformation).LowKey;
+                        long partitionKey = ((Int64RangePartitionInformation) p.PartitionInformation).LowKey;
                         token.ThrowIfCancellationRequested();
                         ContinuationToken queryContinuationToken = null;
                         IActorService proxy = ActorServiceProxy.Create(fabricServiceName, partitionKey);
@@ -178,10 +177,9 @@ namespace HealthMetrics.WebService.Controllers
                 }
 
                 IBandActor bandActor = ActorProxy.Create<IBandActor>(bandActorId, fabricServiceName);
-                var data = await bandActor.GetBandDataAsync();
+                BandDataViewModel data = await bandActor.GetBandDataAsync();
 
                 return string.Format("{0}|{1}", bandActorId, data.DoctorId);
-
             }
             catch
             {

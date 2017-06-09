@@ -5,10 +5,10 @@
 
 namespace HealthMetrics.NationalService
 {
-    using Microsoft.ServiceFabric.Data;
-    using Owin;
     using System.Collections.Concurrent;
     using System.Web.Http;
+    using Microsoft.ServiceFabric.Data;
+    using Owin;
     using Web.Service;
 
     /// <summary>

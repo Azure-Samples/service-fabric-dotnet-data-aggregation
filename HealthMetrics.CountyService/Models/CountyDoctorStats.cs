@@ -5,8 +5,8 @@
 
 namespace HealthMetrics.CountyService
 {
-    using HealthMetrics.Common;
     using System.Runtime.Serialization;
+    using HealthMetrics.Common;
 
     [DataContract]
     internal struct CountyDoctorStats

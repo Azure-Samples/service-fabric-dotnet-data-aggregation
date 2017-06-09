@@ -5,15 +5,15 @@
 
 namespace HealthMetrics.NationalService
 {
-    using HealthMetrics.Common;
-    using HealthMetrics.NationalService.Models;
-    using Microsoft.ServiceFabric.Data;
-    using Microsoft.ServiceFabric.Data.Collections;
     using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Web.Http;
+    using HealthMetrics.Common;
+    using HealthMetrics.NationalService.Models;
+    using Microsoft.ServiceFabric.Data;
+    using Microsoft.ServiceFabric.Data.Collections;
 
     /// <summary>
     /// Votes controller.
@@ -38,8 +38,10 @@ namespace HealthMetrics.NationalService
         [Route("national/stats")]
         public async Task<NationalStatsViewModel> Get()
         {
-            var dictionary = await this.stateManager.GetOrAddAsync<IReliableDictionary<int, NationalCountyStats>>(HealthStatusDictionary);
-            var timeDictionary = await this.stateManager.GetOrAddAsync<IReliableDictionary<string, DateTimeOffset>>(TimeStatsDictionary);
+            IReliableDictionary<int, NationalCountyStats> dictionary =
+                await this.stateManager.GetOrAddAsync<IReliableDictionary<int, NationalCountyStats>>(HealthStatusDictionary);
+            IReliableDictionary<string, DateTimeOffset> timeDictionary =
+                await this.stateManager.GetOrAddAsync<IReliableDictionary<string, DateTimeOffset>>(TimeStatsDictionary);
 
             int totalDoctorCount = 0;
             int totalPatientCount = 0;
@@ -48,10 +50,9 @@ namespace HealthMetrics.NationalService
 
             using (ITransaction tx = this.stateManager.CreateTransaction())
             {
+                ConditionalValue<DateTimeOffset> creationTimeResult = await timeDictionary.TryGetValueAsync(tx, "StartTime");
 
-                var creationTimeResult = await timeDictionary.TryGetValueAsync(tx, "StartTime");
-
-                if(creationTimeResult.HasValue)
+                if (creationTimeResult.HasValue)
                 {
                     offset = creationTimeResult.Value;
                 }
