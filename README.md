@@ -32,10 +32,10 @@ There are several services included in the sample. They are:
 - WebService: This Service just hosts a simple web UI, web API interfaces, and serves information obtained via the NationalService so that it can be rendered.
 
 ## Upgrade Patterns
-This application supports multiple versions via the configuration parameter "Score Calcualtion Mode". This config is defined at the application level but is consumed by serveral of the underlying services to define their behavior.
+This application supports multiple versions via the configuration parameter "Score Calculation Mode". This config is defined at the application level but is consumed by serveral of the underlying services to define their behavior.
 This application supports a couple different upgrade mechanisms:
 
-### Application Pakage Upgrade
+### Application Package Upgrade
 - Differential Package Only Upgrade - You can perform an application config upgrade by deploying an updated application package defining new config settings and a new application version.
 
 In this case, since the change is at the application parameters level, only the application package and the application manifest are present. This script grabs the updated application package containing the new application manifest with the updated application parameter values and starts an upgrade. This package is pre-built for you (HealthMetricsV2ConfigOnlyPackage) and is located alongside the scripts in the scripts folder.
