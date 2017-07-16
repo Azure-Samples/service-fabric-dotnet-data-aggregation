@@ -1,9 +1,12 @@
-﻿$cloud = $false
-$secure = $false
+﻿$cloud = $true
+$singleNode = $false
+$certSecure = $false
+$AADSecure = $true
+$constrainedNodeTypes = $true
 
 if($cloud)
 {
-    $cloudAddress = ""
+    $cloudAddress = "wincontainer005.southcentralus.cloudapp.azure.com"
     $clusterAddress = $cloudAddress+":19000"
 }
 else
@@ -11,15 +14,19 @@ else
     $clusterAddress = "127.0.0.1:19000"
 }
 
-if($secure)
+if($certSecure)
 {
     $thumbprint = ""
     $commonName = ""
 }
 
-if($secure)
+if($certSecure)
 {
-    Connect-ServiceFabricCluster $clusterAddress -FindType FindByThumbprint -FindValue $thumbprint -X509Credential -ServerCertThumbprint $thumbprint -ServerCommonName $commonName -StoreLocation CurrentUser -StoreName My -Verbose
+    Connect-ServiceFabricCluster -ConnectionEndpoint $clusterAddress -FindType FindByThumbprint -FindValue $thumbprint -X509Credential -ServerCertThumbprint $thumbprint -ServerCommonName $commonName -StoreLocation CurrentUser -StoreName My -Verbose
+}
+elseif($AADSecure) 
+{
+    Connect-ServiceFabricCluster -ConnectionEndpoint $clusterAddress -AzureActiveDirectory
 }
 else
 {

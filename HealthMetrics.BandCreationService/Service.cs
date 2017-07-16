@@ -199,7 +199,7 @@ namespace HealthMetrics.BandCreationService
 
             while (!ct.IsCancellationRequested && !bandVerified && !doctorVerified)
             {
-                await Task.Delay(100);
+                await Task.Delay(100, ct);
 
                 if (!bandVerified)
                 {

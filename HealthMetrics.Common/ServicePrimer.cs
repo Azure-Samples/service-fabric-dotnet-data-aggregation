@@ -37,29 +37,50 @@ namespace HealthMetrics.Common
 
         public async Task WaitForStatefulService(Uri serviceInstanceUri, CancellationToken token)
         {
-            StatefulServiceDescription description =
-                await this.Client.ServiceManager.GetServiceDescriptionAsync(serviceInstanceUri) as StatefulServiceDescription;
+            int maxRetryCount = 100;
+            int currentAttempt = 0;
+            bool complete = false;
 
-            int targetTotalReplicas = description.TargetReplicaSetSize;
-            if (description.PartitionSchemeDescription is UniformInt64RangePartitionSchemeDescription)
+            while (currentAttempt < maxRetryCount && !complete && !token.IsCancellationRequested)
             {
-                targetTotalReplicas *= ((UniformInt64RangePartitionSchemeDescription)description.PartitionSchemeDescription).PartitionCount;
-            }
-
-            ServicePartitionList partitions = await this.Client.QueryManager.GetPartitionListAsync(serviceInstanceUri);
-            int replicaTotal = 0;
-
-            while (replicaTotal < targetTotalReplicas && !token.IsCancellationRequested)
-            {
-                await Task.Delay(this.interval);
-                //ServiceEventSource.Current.ServiceMessage(this, "CountyService waiting for National Service to come up.");
-
-                replicaTotal = 0;
-                foreach (Partition partition in partitions)
+                try
                 {
-                    ServiceReplicaList replicaList = await this.Client.QueryManager.GetReplicaListAsync(partition.PartitionInformation.Id);
 
-                    replicaTotal += replicaList.Count(x => x.ReplicaStatus == System.Fabric.Query.ServiceReplicaStatus.Ready);
+                    StatefulServiceDescription description =
+                        await this.Client.ServiceManager.GetServiceDescriptionAsync(serviceInstanceUri) as StatefulServiceDescription;
+
+                    int targetTotalReplicas = description.TargetReplicaSetSize;
+                    if (description.PartitionSchemeDescription is UniformInt64RangePartitionSchemeDescription)
+                    {
+                        targetTotalReplicas *= ((UniformInt64RangePartitionSchemeDescription)description.PartitionSchemeDescription).PartitionCount;
+                    }
+
+                    ServicePartitionList partitions = await this.Client.QueryManager.GetPartitionListAsync(serviceInstanceUri);
+                    int replicaTotal = 0;
+
+                    while (replicaTotal < targetTotalReplicas && !token.IsCancellationRequested)
+                    {
+                        await Task.Delay(this.interval, token);
+
+                        replicaTotal = 0;
+                        foreach (Partition partition in partitions)
+                        {
+                            ServiceReplicaList replicaList = await this.Client.QueryManager.GetReplicaListAsync(partition.PartitionInformation.Id);
+
+                            replicaTotal += replicaList.Count(x => x.ReplicaStatus == System.Fabric.Query.ServiceReplicaStatus.Ready);
+                        }
+                    }
+
+                    complete = true;
+                }
+                catch (Exception e)
+                {
+
+                }
+                finally
+                {
+                    await Task.Delay(this.interval, token);
+                    currentAttempt++;
                 }
             }
         }

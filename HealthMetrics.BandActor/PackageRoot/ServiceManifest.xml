@@ -3,7 +3,7 @@
   <ServiceTypes>
     <StatefulServiceType ServiceTypeName="BandActorServiceType">
       <Extensions>
-        <Extension Name="__GeneratedServiceType__" GeneratedId="560b251b-b497-4e1b-bb73-7e2510895a9c|None">
+        <Extension Name="__GeneratedServiceType__" GeneratedId="2f6a582a-857e-400d-941c-da6fda3ece8d|None">
           <GeneratedNames xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
             <DefaultService Name="BandActorService" />
             <ServiceEndpoint Name="BandActorServiceEndpoint" />

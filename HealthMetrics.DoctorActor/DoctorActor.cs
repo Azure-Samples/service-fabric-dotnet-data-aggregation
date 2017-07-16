@@ -48,7 +48,7 @@ namespace HealthMetrics.DoctorActor
             await this.StateManager.SetStateAsync<CountyRecord>("CountyRecord", countyRecord);
             await this.StateManager.SetStateAsync<long>("HealthReportCount", 0);
             await this.StateManager.SetStateAsync<Dictionary<Guid, DoctorPatientState>>("PersonHealthStatuses", new Dictionary<Guid, DoctorPatientState>());
-            await this.RegisterReminderAsync(GenerateHealthDataAsyncReminder, null, TimeSpan.FromSeconds(this.random.Next(5, 15)), TimeSpan.FromSeconds(5));
+            await this.RegisterReminderAsync(GenerateHealthDataAsyncReminder, null, TimeSpan.FromSeconds(this.random.Next(5, 15)), TimeSpan.FromSeconds(10));
 
             ActorEventSource.Current.ActorMessage(this, "Doctor created. ID: {0}. Name: {1}", this.Id.GetGuidId(), name);
         }

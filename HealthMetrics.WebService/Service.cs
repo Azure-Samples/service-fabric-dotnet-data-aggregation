@@ -19,6 +19,7 @@ namespace HealthMetrics.WebService
 
         public Service(StatelessServiceContext serviceContext) : base(serviceContext)
         {
+            
         }
 
         protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()

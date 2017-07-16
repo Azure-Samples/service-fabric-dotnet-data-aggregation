@@ -10,6 +10,7 @@ namespace HealthMetrics.NationalService
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
@@ -22,12 +23,14 @@ namespace HealthMetrics.NationalService
     {
         private const string HealthStatusDictionary = "healthStatusDictionary";
         private const string TimeStatsDictionary = "TimeTracker";
+        private readonly ConcurrentDictionary<string, long> statsDictionary;
 
         private readonly IReliableStateManager stateManager;
 
-        public NationalStatsController(IReliableStateManager stateManager)
+        public NationalStatsController(IReliableStateManager stateManager, ConcurrentDictionary<string, long> statsDictionary)
         {
             this.stateManager = stateManager;
+            this.statsDictionary = statsDictionary;
         }
 
         /// <summary>
@@ -38,40 +41,43 @@ namespace HealthMetrics.NationalService
         [Route("national/stats")]
         public async Task<NationalStatsViewModel> Get()
         {
-            var dictionary = await this.stateManager.GetOrAddAsync<IReliableDictionary<int, NationalCountyStats>>(HealthStatusDictionary);
-            var timeDictionary = await this.stateManager.GetOrAddAsync<IReliableDictionary<string, DateTimeOffset>>(TimeStatsDictionary);
-
-            int totalDoctorCount = 0;
-            int totalPatientCount = 0;
-            long totalHealthReportCount = 0;
-            DateTimeOffset offset = DateTimeOffset.MinValue;
-
-            using (ITransaction tx = this.stateManager.CreateTransaction())
+            try
             {
+                var timeDictionary = await this.stateManager.GetOrAddAsync<IReliableDictionary<string, DateTimeOffset>>(TimeStatsDictionary);
+               
+                DateTimeOffset offset = DateTimeOffset.MinValue;
+                IList<KeyValuePair<int, NationalCountyStats>> items = new List<KeyValuePair<int, NationalCountyStats>>();
 
-                var creationTimeResult = await timeDictionary.TryGetValueAsync(tx, "StartTime");
-
-                if(creationTimeResult.HasValue)
+                using (ITransaction tx = this.stateManager.CreateTransaction())
                 {
-                    offset = creationTimeResult.Value;
-                }
+                    var creationTimeResult = await timeDictionary.TryGetValueAsync(tx, "StartTime");
 
-                IAsyncEnumerator<KeyValuePair<int, NationalCountyStats>> enumerator = (await dictionary.CreateEnumerableAsync(tx)).GetAsyncEnumerator();
-
-                while (await enumerator.MoveNextAsync(CancellationToken.None))
-                {
-                    IList<KeyValuePair<int, NationalCountyStats>> items = new List<KeyValuePair<int, NationalCountyStats>>();
-                    items.Add(enumerator.Current);
-
-                    foreach (KeyValuePair<int, NationalCountyStats> item in items)
+                    if (creationTimeResult.HasValue)
                     {
-                        totalDoctorCount += item.Value.DoctorCount;
-                        totalPatientCount += item.Value.PatientCount;
-                        totalHealthReportCount += item.Value.HealthReportCount;
+                        offset = creationTimeResult.Value;
                     }
-                }
 
-                return new NationalStatsViewModel(totalDoctorCount, totalPatientCount, totalHealthReportCount, 0, offset);
+                    //IAsyncEnumerator<KeyValuePair<int, NationalCountyStats>> enumerator = (await dictionary.CreateEnumerableAsync(tx)).GetAsyncEnumerator();
+
+                    //while (await enumerator.MoveNextAsync(CancellationToken.None))
+                    //{                    
+                    //    items.Add(enumerator.Current);
+                    //}
+
+                    //foreach (KeyValuePair<int, NationalCountyStats> item in items)
+                    //{
+                    //    totalDoctorCount += item.Value.DoctorCount;
+                    //    totalPatientCount += item.Value.PatientCount;
+                    //    totalHealthReportCount += item.Value.HealthReportCount;
+                    //}
+
+                    return new NationalStatsViewModel(statsDictionary["totalDoctors"], statsDictionary["totalPatientCount"], statsDictionary["totalHealthReportCount"], 0, offset);
+                }
+            }
+            catch (Exception e)
+            {
+                var ex = e;
+                throw e;
             }
         }
     }

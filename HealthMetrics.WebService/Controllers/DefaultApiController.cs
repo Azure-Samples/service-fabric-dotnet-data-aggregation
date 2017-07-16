@@ -148,18 +148,22 @@ namespace HealthMetrics.WebService.Controllers
             ServiceUriBuilder serviceUri = new ServiceUriBuilder(this.GetSetting("BandActorServiceInstanceName"));
             Uri fabricServiceName = serviceUri.ToUri();
 
-            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            ServicePrimer primer = new ServicePrimer();
+
+            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
 
             var token = cts.Token;
+
+            await primer.WaitForStatefulService(fabricServiceName, token);
 
             FabricClient fc = new FabricClient();
             ServicePartitionList partitions = await fc.QueryManager.GetPartitionListAsync(fabricServiceName);
 
             ActorId bandActorId = null;
 
-            try
+            while (!token.IsCancellationRequested && bandActorId == null)
             {
-                while (!token.IsCancellationRequested && bandActorId == null)
+                try
                 {
                     foreach (Partition p in partitions)
                     {
@@ -171,23 +175,21 @@ namespace HealthMetrics.WebService.Controllers
                         foreach (ActorInformation info in result.Items)
                         {
                             bandActorId = info.ActorId;
-                            break;
+                            IBandActor bandActor = ActorProxy.Create<IBandActor>(bandActorId, fabricServiceName);
+                            var data = await bandActor.GetBandDataAsync();
+                            return string.Format("{0}|{1}", bandActorId, data.DoctorId);
                         }
                         //otherwise we will bounce around other partitions until we find an actor
                     }
                 }
+                catch
+                {
 
-                IBandActor bandActor = ActorProxy.Create<IBandActor>(bandActorId, fabricServiceName);
-                var data = await bandActor.GetBandDataAsync();
-
-                return string.Format("{0}|{1}", bandActorId, data.DoctorId);
-
+                }
             }
-            catch
-            {
-                //no actors found within timeout
-                throw;
-            }
+
+            throw new InvalidOperationException("Couldn't find actor within timeout");
         }
+
     }
 }

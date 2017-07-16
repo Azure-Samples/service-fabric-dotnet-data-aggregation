@@ -23,30 +23,24 @@ function MetricsApp() {
 
     this.Initialize = function () {
 
-        if (window.location.hash == "#doctors") {
-            self.SetDoctorContext();
-        }
-        else {
-            self.SetUserContext();
-        }
-
-        setInterval(self.UpdateStats, 3000);
-    }
-
-    this.InitializeUsers = function () {
+        var rollingAverage = {
+            currentAverage: 0,
+            currentCount: 0,
+            last: 0
+        };
 
         api.GetIds(function (result) {
             var strings = result.split("|");
             self.currentBandId = strings[0];
             self.currentDoctorId = strings[1];
+            self.SetUserContext();
+            setInterval(function () { self.UpdateStats(rollingAverage); }, 1000);
+            setInterval(self.UpdateUserInfo, 2000);
         });
 
-        setInterval(self.UpdateUserInfo, 2000);
-        //setInterval(self.UpdateDoctorInfo, 5000);
     }
 
-
-    this.UpdateStats = function () {
+    this.UpdateStats = function (rollingAverage) {
 
         api.GetNationalStats(function (statsData) {
 
@@ -55,17 +49,27 @@ function MetricsApp() {
             var healthReportStats = $('#healthReportsStats');
             var messageRate = $('#messageRate')
 
-            var creationDate = new Date(statsData.StartTimeOffset);
-            var now = new Date();
+            if (rollingAverage.currentCount == 0) {
+                var creationDate = new Date(statsData.StartTimeOffset);
+                var now = new Date();
+                rollingAverage.currentCount = Math.round((now - creationDate) / 1000);
+                rollingAverage.currentAverage = Math.round((statsData.HealthReportCount / rollingAverage.currentCount) * 100) / 100;
+            }
+            else {
+                var diff = statsData.HealthReportCount - rollingAverage.last;
+                var avg = rollingAverage.currentAverage * rollingAverage.currentCount;
+                var newCount = rollingAverage.currentCount + 1;
+                rollingAverage.currentAverage = Math.round(((avg + diff) / newCount) * 100) / 100;
+                rollingAverage.currentCount = newCount;                
+            }
 
-            var timeInSeconds = (now - creationDate) / 1000;
-            var rawCreationRate = statsData.HealthReportCount / timeInSeconds;
-            var creationRate = Math.round(rawCreationRate * 100) / 100;
+            rollingAverage.last = statsData.HealthReportCount;
 
-            bandStats.text(statsData.PatientCount);
-            doctorStats.text(statsData.DoctorCount);
-            healthReportStats.text(statsData.HealthReportCount);
-            messageRate.text(creationRate);
+            bandStats.text(numberWithCommas(statsData.PatientCount));
+            doctorStats.text(numberWithCommas(statsData.DoctorCount));
+            healthReportStats.text(numberWithCommas(statsData.HealthReportCount));
+            messageRate.text(numberWithCommas(rollingAverage.currentAverage));
+            //messageRate.text(numberWithCommas(diff));
         });
     }
 
@@ -81,9 +85,9 @@ function MetricsApp() {
 
                 $('<li class="name-and-healthbox clearfix"/>')
                     .append(
-                        $('<div/>').addClass(healthClass).css('background-color', computeColor(jObject.HealthStatus)).html(healthValue))
+                    $('<div/>').addClass(healthClass).css('background-color', computeColor(jObject.HealthStatus)).html(healthValue))
                     .append(
-                        $('<span/>').text(jObject.DoctorName))
+                    $('<span/>').text(jObject.DoctorName))
                     .appendTo(doctorList);
             });
 
@@ -146,28 +150,8 @@ function MetricsApp() {
         this.currentContext = 'user';
         $('.header-title h1').text('Health Metrics');
         $('.header-title h1').css('color', '#FF8A00');
-        $('#doctorInfo').hide();
         $('#userInfo').show();
     }
-
-    this.SetDoctorContext = function () {
-        this.SetUserName(this.currentDoctorName);
-        this.currentContext = 'doctor';
-        $('.header-title h1').text('Health Metrics for Doctors');
-        $('.header-title h1').css('color', '#00ABEC');
-        $('#userInfo').hide();
-        $('#doctorInfo').show();
-    }
-
-    this.GenerateColorLegend = function () {
-        var colorLegend = $('#colorLegend');
-        colorLegend.empty();
-        for (var i = 1; i <= 100; ++i) {
-            $('<div style="background-color: hsl(' + i + ', 100%, 50%); width:5px; height:20px; display:inline-block" />')
-                .appendTo(colorLegend);
-        }
-    }
-
 
     this.SetUserName = function (name) {
         $('.login-user h3').text(name);
@@ -177,17 +161,6 @@ function MetricsApp() {
 $(function () {
     var metricsApp = new MetricsApp();
     metricsApp.Initialize();
-
-    metricsApp.InitializeUsers();
-
-    $('#userLoginLink').click(function () {
-        metricsApp.SetUserContext();
-    });
-
-    $('#doctorLoginLink').click(function () {
-        metricsApp.SetDoctorContext();
-    });
-
 });
 
 var mapApp = {
@@ -230,23 +203,23 @@ var mapApp = {
 
         d3.json("/Content/us-10m.json", function (error, topology) {
             svg.selectAll(".region")
-            .data(topojson.feature(topology, topology.objects.counties).features)
-            .enter()
-            .append("path")
-            .attr("d", path)
-            .attr('fill', function (d) { return '#313131'; })
-            .attr("id", function (d) { return "p" + d.id; });
+                .data(topojson.feature(topology, topology.objects.counties).features)
+                .enter()
+                .append("path")
+                .attr("d", path)
+                .attr('fill', function (d) { return '#313131'; })
+                .attr("id", function (d) { return "p" + d.id; });
         });
     },
     refreshMap: function (newData) {
         var self = this;
         $.map(newData, function (data) {
             d3.select("path#p" + data.Id)
-            .transition()
-            .duration(1000)
-            .attr('fill', function (d) {
-                return computeColor(data.healthIndex);
-            });
+                .transition()
+                .duration(1000)
+                .attr('fill', function (d) {
+                    return computeColor(data.healthIndex);
+                });
         });
 
     },
@@ -266,7 +239,7 @@ function computeColor(HealthIndex) {
         return 'hsl(0, 0%, ' + HealthIndex.value + '%)';
     }
     else {
-        return 'hsl('+ HealthIndex.value +', 100%, 50%)';
+        return 'hsl(' + HealthIndex.value + ', 100%, 50%)';
     }
 }
 
@@ -339,6 +312,10 @@ function getCountyHealthViewModel(countyHealthData) {
     ret.healthIndex = countyHealthData.Health;
 
     return ret;
+}
+
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 angular.module('healthApp', [])
