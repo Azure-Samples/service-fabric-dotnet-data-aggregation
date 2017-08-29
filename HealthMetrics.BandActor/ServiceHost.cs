@@ -5,12 +5,12 @@
 
 namespace HealthMetrics.BandActor
 {
-    using Microsoft.ServiceFabric.Actors.Runtime;
     using System;
     using System.Fabric;
     using System.Fabric.Health;
     using System.Net;
     using System.Threading;
+    using Microsoft.ServiceFabric.Actors.Runtime;
 
     public class ServiceHost
     {

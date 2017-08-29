@@ -5,8 +5,8 @@
 
 namespace HealthMetrics.CountyService
 {
-    using Newtonsoft.Json;
     using System.Net.Http.Formatting;
+    using Newtonsoft.Json;
 
     public static class FormatterConfig
     {

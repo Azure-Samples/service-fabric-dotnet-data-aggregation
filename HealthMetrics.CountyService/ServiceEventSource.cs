@@ -5,10 +5,10 @@
 
 namespace HealthMetrics.CountyService
 {
-    using Microsoft.ServiceFabric.Services.Runtime;
     using System;
     using System.Diagnostics.Tracing;
     using System.Fabric;
+    using Microsoft.ServiceFabric.Services.Runtime;
 
     [EventSource(Name = "MyCompany-HealthMetricsApplication-HealthMetrics.CountyService")]
     internal sealed class ServiceEventSource : EventSource

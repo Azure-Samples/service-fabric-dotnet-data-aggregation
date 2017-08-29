@@ -5,14 +5,14 @@
 
 namespace HealthMetrics.BandCreationService
 {
-    using HealthMetrics.BandActor.Interfaces;
-    using HealthMetrics.Common;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Fabric.Description;
     using System.IO;
     using System.Threading.Tasks;
+    using HealthMetrics.BandActor.Interfaces;
+    using HealthMetrics.Common;
 
     public class BandActorGenerator
     {
@@ -73,7 +73,7 @@ namespace HealthMetrics.BandCreationService
 
                 string countyName = string.Format("{0}, {1}", values[1], values[2].Replace(" ", ""));
 
-                int totalDoctors = this.baseDoctorsPerCounty + (this.doctorsPerPopulation * (int)(Math.Round((double)population / this.populationFactor, 0)));
+                int totalDoctors = this.baseDoctorsPerCounty + (this.doctorsPerPopulation * (int) (Math.Round((double) population / this.populationFactor, 0)));
 
                 for (int doctorCount = 0; doctorCount < totalDoctors; doctorCount++)
                 {
@@ -127,7 +127,7 @@ namespace HealthMetrics.BandCreationService
             }
 
             //move to a scale of 0-100
-            return new HealthIndex((int)Math.Round((healthDistribution + 3) * 16.7, 0), false);
+            return new HealthIndex((int) Math.Round((healthDistribution + 3) * 16.7, 0), false);
 
             //Where did 16.7 come from?
             //healthDistribution = healthDistribution * 100; //-3 = -300, -1.27 = -127, 3 = 300, 2.20 = 220

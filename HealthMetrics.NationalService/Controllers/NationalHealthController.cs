@@ -5,16 +5,14 @@
 
 namespace HealthMetrics.NationalService
 {
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using System.Web.Http;
     using HealthMetrics.Common;
     using HealthMetrics.NationalService.Models;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Web.Http;
 
     /// <summary>
     /// Votes controller.
@@ -84,10 +82,10 @@ namespace HealthMetrics.NationalService
             {
                 using (ITransaction tx = this.stateManager.CreateTransaction())
                 {
-                    var result = await dictionary.TryGetValueAsync(tx, countyId);
+                    ConditionalValue<NationalCountyStats> result = await dictionary.TryGetValueAsync(tx, countyId);
                     if (result.HasValue)
                     {
-                        countyData.Add(new CountyHealth() { Id = countyId, Health = result.Value.AverageHealthIndex });
+                        countyData.Add(new CountyHealth() {Id = countyId, Health = result.Value.AverageHealthIndex});
                     }
 
                     await tx.CommitAsync();

@@ -5,14 +5,6 @@
 
 namespace HealthMetrics.CountyService
 {
-    using HealthMetrics.Common;
-    using Microsoft.ServiceFabric.Data;
-    using Microsoft.ServiceFabric.Data.Collections;
-    using Microsoft.ServiceFabric.Services.Client;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
-    using Microsoft.ServiceFabric.Services.Communication.Runtime;
-    using Microsoft.ServiceFabric.Services.Runtime;
-    using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -23,6 +15,14 @@ namespace HealthMetrics.CountyService
     using System.Net;
     using System.Threading;
     using System.Threading.Tasks;
+    using HealthMetrics.Common;
+    using Microsoft.ServiceFabric.Data;
+    using Microsoft.ServiceFabric.Data.Collections;
+    using Microsoft.ServiceFabric.Services.Client;
+    using Microsoft.ServiceFabric.Services.Communication.Client;
+    using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using Microsoft.ServiceFabric.Services.Runtime;
+    using Newtonsoft.Json;
     using Web.Service;
 
     public class Service : StatefulService

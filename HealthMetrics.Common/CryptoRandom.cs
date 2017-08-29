@@ -39,9 +39,9 @@ namespace HealthMetrics.Common
         {
             byte[] b = new byte[4];
             r.GetBytes(b);
-            return (double)BitConverter.ToUInt32(b, 0) / UInt32.MaxValue;
+            return (double) BitConverter.ToUInt32(b, 0) / UInt32.MaxValue;
         }
-        
+
 
         ///<summary>
         /// Returns a random number within the specified range.
@@ -55,7 +55,7 @@ namespace HealthMetrics.Common
                 throw new ArgumentOutOfRangeException(String.Format("max:{0} must be > min:{1}!", maxValue, minValue));
             }
 
-            return (int)Math.Round(this.NextDouble() * (maxValue - minValue - 1)) + minValue;
+            return (int) Math.Round(this.NextDouble() * (maxValue - minValue - 1)) + minValue;
         }
 
         ///<summary>
@@ -84,7 +84,7 @@ namespace HealthMetrics.Common
             }
 
             //Working with ulong so that modulo works correctly with values > long.MaxValue
-            ulong uRange = (ulong)(maxValue - minValue);
+            ulong uRange = (ulong) (maxValue - minValue);
 
             //Prevent a modolo bias; see http://stackoverflow.com/a/10984975/238419
             //for more information.
@@ -95,10 +95,10 @@ namespace HealthMetrics.Common
             {
                 byte[] buf = new byte[8];
                 r.GetBytes(buf);
-                ulongRand = (ulong)BitConverter.ToInt64(buf, 0);
+                ulongRand = (ulong) BitConverter.ToInt64(buf, 0);
             } while (ulongRand > ulong.MaxValue - ((ulong.MaxValue % uRange) + 1) % uRange);
 
-            return (long)(ulongRand % uRange) + minValue;
+            return (long) (ulongRand % uRange) + minValue;
         }
 
         /// <summary>

@@ -5,10 +5,10 @@
 
 namespace HealthMetrics.CountyService
 {
+    using System.Web.Http;
     using HealthMetrics.Common;
     using Microsoft.ServiceFabric.Data;
     using Owin;
-    using System.Web.Http;
     using Web.Service;
 
     /// <summary>

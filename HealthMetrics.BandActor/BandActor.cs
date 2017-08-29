@@ -5,6 +5,13 @@
 
 namespace HealthMetrics.BandActor
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Fabric;
+    using System.Fabric.Description;
+    using System.Linq;
+    using System.Threading.Tasks;
     using HealthMetrics.BandActor.Interfaces;
     using HealthMetrics.Common;
     using HealthMetrics.DoctorActor.Interfaces;
@@ -12,13 +19,6 @@ namespace HealthMetrics.BandActor
     using Microsoft.ServiceFabric.Actors.Client;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
-    using System;
-    using System.Linq;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Fabric;
-    using System.Fabric.Description;
-    using System.Threading.Tasks;
 
     //[StatePersistence(StatePersistence.Volatile)]
     internal class BandActor : Actor, IBandActor, IRemindable
@@ -33,7 +33,8 @@ namespace HealthMetrics.BandActor
 
         public BandActor(ActorService actorService, ActorId actorId)
             : base(actorService, actorId)
-        { }
+        {
+        }
 
         public async Task<BandDataViewModel> GetBandDataAsync()
         {
@@ -42,14 +43,15 @@ namespace HealthMetrics.BandActor
                 //check to see if the patient name is set
                 //if not this actor object hasn't been initialized
                 //and we can skip the rest of the checks
-                var PatientInfoResult = await this.StateManager.TryGetStateAsync<string>("PatientName");
+                ConditionalValue<string> PatientInfoResult = await this.StateManager.TryGetStateAsync<string>("PatientName");
 
                 if (PatientInfoResult.HasValue)
                 {
-                    var CountyInfoResult = await this.StateManager.TryGetStateAsync<CountyRecord>("CountyInfo");
-                    var DoctorInfoResult = await this.StateManager.TryGetStateAsync<Guid>("DoctorId");
-                    var HeatlthInfoResult = await this.StateManager.TryGetStateAsync<HealthIndex>("HealthIndex");
-                    var HeartRateRecords = await this.StateManager.TryGetStateAsync<List<HeartRateRecord>>("HeartRateRecords");
+                    ConditionalValue<CountyRecord> CountyInfoResult = await this.StateManager.TryGetStateAsync<CountyRecord>("CountyInfo");
+                    ConditionalValue<Guid> DoctorInfoResult = await this.StateManager.TryGetStateAsync<Guid>("DoctorId");
+                    ConditionalValue<HealthIndex> HeatlthInfoResult = await this.StateManager.TryGetStateAsync<HealthIndex>("HealthIndex");
+                    ConditionalValue<List<HeartRateRecord>> HeartRateRecords =
+                        await this.StateManager.TryGetStateAsync<List<HeartRateRecord>>("HeartRateRecords");
 
                     HealthIndexCalculator ic = this.indexCalculator;
 
@@ -116,17 +118,16 @@ namespace HealthMetrics.BandActor
         {
             try
             {
-                var HeatlthInfoResult = await this.StateManager.TryGetStateAsync<HealthIndex>("HealthIndex");
-                var PatientInfoResult = await this.StateManager.TryGetStateAsync<string>("PatientName");
-                var DoctorInfoResult = await this.StateManager.TryGetStateAsync<Guid>("DoctorId");
+                ConditionalValue<HealthIndex> HeatlthInfoResult = await this.StateManager.TryGetStateAsync<HealthIndex>("HealthIndex");
+                ConditionalValue<string> PatientInfoResult = await this.StateManager.TryGetStateAsync<string>("PatientName");
+                ConditionalValue<Guid> DoctorInfoResult = await this.StateManager.TryGetStateAsync<Guid>("DoctorId");
 
                 if (HeatlthInfoResult.HasValue && PatientInfoResult.HasValue && DoctorInfoResult.HasValue)
                 {
-
                     ActorId doctorId = new ActorId(DoctorInfoResult.Value);
-                    HeartRateRecord record = new HeartRateRecord((float)this.random.NextDouble());
+                    HeartRateRecord record = new HeartRateRecord((float) this.random.NextDouble());
 
-                    await SaveHealthDataAsync(record);
+                    await this.SaveHealthDataAsync(record);
 
                     IDoctorActor doctor = ActorProxy.Create<IDoctorActor>(doctorId, this.doctorActorServiceUri);
 
@@ -167,8 +168,8 @@ namespace HealthMetrics.BandActor
 
             if (HeartRateRecords.HasValue)
             {
-                var records = HeartRateRecords.Value;
-                records = records.Where(x => DateTimeOffset.UtcNow - x.Timestamp.ToUniversalTime() <= TimeWindow).ToList();
+                List<HeartRateRecord> records = HeartRateRecords.Value;
+                records = records.Where(x => DateTimeOffset.UtcNow - x.Timestamp.ToUniversalTime() <= this.TimeWindow).ToList();
                 records.Add(newRecord);
                 await this.StateManager.SetStateAsync<List<HeartRateRecord>>("HeartRateRecords", records);
             }

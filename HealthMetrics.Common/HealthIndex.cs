@@ -62,7 +62,7 @@ namespace HealthMetrics.Common
 
         public int CompareTo(object obj)
         {
-            return this.CompareTo((HealthIndex)obj);
+            return this.CompareTo((HealthIndex) obj);
         }
 
         public bool Equals(HealthIndex other)

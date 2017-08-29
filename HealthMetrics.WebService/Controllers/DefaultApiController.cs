@@ -5,12 +5,6 @@
 
 namespace HealthMetrics.WebService.Controllers
 {
-    using HealthMetrics.BandActor.Interfaces;
-    using HealthMetrics.Common;
-    using HealthMetrics.DoctorActor.Interfaces;
-    using Microsoft.ServiceFabric.Actors;
-    using Microsoft.ServiceFabric.Actors.Client;
-    using Microsoft.ServiceFabric.Actors.Query;
     using System;
     using System.Collections.ObjectModel;
     using System.Fabric;
@@ -20,6 +14,11 @@ namespace HealthMetrics.WebService.Controllers
     using System.Threading;
     using System.Threading.Tasks;
     using System.Web.Http;
+    using HealthMetrics.BandActor.Interfaces;
+    using HealthMetrics.Common;
+    using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Client;
+    using Microsoft.ServiceFabric.Actors.Query;
 
     [RoutePrefix("api")]
     public class DefaultApiController : ApiController
@@ -119,11 +118,6 @@ namespace HealthMetrics.WebService.Controllers
             {
                 return this.InternalServerError(ae.InnerException);
             }
-        }
-
-        private string GetSetting(string key)
-        {
-            return this.configPackageSettings[key].Value;
         }
 
         [HttpGet]

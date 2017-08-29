@@ -5,19 +5,17 @@
 
 namespace HealthMetrics.NationalService
 {
-    using Microsoft.ServiceFabric.Data;
-    using Microsoft.ServiceFabric.Services.Communication.Runtime;
-    using Microsoft.ServiceFabric.Services.Runtime;
-    using System.Collections.Generic;
-    using Microsoft.ServiceFabric.Data.Collections;
-    using System.Fabric;
-    using Web.Service;
-    using System.Threading;
-    using System.Threading.Tasks;
     using System;
     using System.Collections.Concurrent;
-    using Microsoft.ServiceFabric.Data.Notifications;
-    using HealthMetrics.NationalService.Models;
+    using System.Collections.Generic;
+    using System.Fabric;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Data;
+    using Microsoft.ServiceFabric.Data.Collections;
+    using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using Microsoft.ServiceFabric.Services.Runtime;
+    using Web.Service;
 
     public class Service : StatefulService
     {

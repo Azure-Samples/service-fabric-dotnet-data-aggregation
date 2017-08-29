@@ -5,13 +5,6 @@
 
 namespace HealthMetrics.BandCreationService
 {
-    using HealthMetrics.BandActor.Interfaces;
-    using HealthMetrics.Common;
-    using HealthMetrics.DoctorActor.Interfaces;
-    using Microsoft.ServiceFabric.Actors;
-    using Microsoft.ServiceFabric.Actors.Client;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
-    using Microsoft.ServiceFabric.Services.Runtime;
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
@@ -21,6 +14,13 @@ namespace HealthMetrics.BandCreationService
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using HealthMetrics.BandActor.Interfaces;
+    using HealthMetrics.Common;
+    using HealthMetrics.DoctorActor.Interfaces;
+    using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Client;
+    using Microsoft.ServiceFabric.Services.Communication.Client;
+    using Microsoft.ServiceFabric.Services.Runtime;
 
     public class Service : StatelessService
     {
@@ -112,7 +112,15 @@ namespace HealthMetrics.BandCreationService
 
                         ServiceEventSource.Current.Message("Actor created {0} verifying...", bandActorId);
 
-                        await VerifyActors(new HealthIndexCalculator(this.Context), bandActorId, doctorName, randomCountyRecord, bandActorInfo, docActor, bandActor, cancellationToken);
+                        await VerifyActors(
+                            new HealthIndexCalculator(this.Context),
+                            bandActorId,
+                            doctorName,
+                            randomCountyRecord,
+                            bandActorInfo,
+                            docActor,
+                            bandActor,
+                            cancellationToken);
                     }
 
                     catch (Exception e)
@@ -176,7 +184,6 @@ namespace HealthMetrics.BandCreationService
                     await VerifyActors(hic, bandActorId, doctorName, randomCountyRecord, bandActorInfo, docActor, bandActor, cancellationToken);
 
                     break;
-
                 }
                 catch (Exception e)
                 {
@@ -189,7 +196,6 @@ namespace HealthMetrics.BandCreationService
             HealthIndexCalculator hic, ActorId bandActorId, string doctorName, CountyRecord randomCountyRecord, BandInfo bandActorInfo, IDoctorActor docActor,
             IBandActor bandActor, CancellationToken ct)
         {
-
             ServiceEventSource.Current.Message("Verifying Actor {0}", bandActorId);
 
             bool bandVerified = false;
