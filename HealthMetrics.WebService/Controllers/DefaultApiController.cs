@@ -126,8 +126,8 @@ namespace HealthMetrics.WebService.Controllers
         {
             if (bool.Parse(this.configPackageSettings["GenerateKnownPeople"].Value))
             {
-                var patientId = this.configPackageSettings["KnownPatientId"].Value;
-                var doctorId = this.configPackageSettings["KnownDoctorId"].Value;
+                string patientId = this.configPackageSettings["KnownPatientId"].Value;
+                string doctorId = this.configPackageSettings["KnownDoctorId"].Value;
 
                 return string.Format("{0}|{1}", patientId, doctorId);
             }
@@ -135,6 +135,11 @@ namespace HealthMetrics.WebService.Controllers
             {
                 return await this.GetRandomIdsAsync();
             }
+        }
+
+        private string GetSetting(string key)
+        {
+            return this.configPackageSettings[key].Value;
         }
 
         private async Task<string> GetRandomIdsAsync()
@@ -146,7 +151,7 @@ namespace HealthMetrics.WebService.Controllers
 
             CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
 
-            var token = cts.Token;
+            CancellationToken token = cts.Token;
 
             await primer.WaitForStatefulService(fabricServiceName, token);
 
@@ -161,7 +166,7 @@ namespace HealthMetrics.WebService.Controllers
                 {
                     foreach (Partition p in partitions)
                     {
-                        var partitionKey = ((Int64RangePartitionInformation)p.PartitionInformation).LowKey;
+                        long partitionKey = ((Int64RangePartitionInformation) p.PartitionInformation).LowKey;
                         token.ThrowIfCancellationRequested();
                         ContinuationToken queryContinuationToken = null;
                         IActorService proxy = ActorServiceProxy.Create(fabricServiceName, partitionKey);
@@ -170,7 +175,7 @@ namespace HealthMetrics.WebService.Controllers
                         {
                             bandActorId = info.ActorId;
                             IBandActor bandActor = ActorProxy.Create<IBandActor>(bandActorId, fabricServiceName);
-                            var data = await bandActor.GetBandDataAsync();
+                            BandDataViewModel data = await bandActor.GetBandDataAsync();
                             return string.Format("{0}|{1}", bandActorId, data.DoctorId);
                         }
                         //otherwise we will bounce around other partitions until we find an actor
@@ -184,6 +189,5 @@ namespace HealthMetrics.WebService.Controllers
 
             throw new InvalidOperationException("Couldn't find actor within timeout");
         }
-
     }
 }

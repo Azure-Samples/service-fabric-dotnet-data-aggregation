@@ -73,9 +73,8 @@ namespace HealthMetrics.CountyService
             {
                 try
                 {
-
                     IReliableDictionary<int, string> countyNamesDictionary =
-                    await this.StateManager.GetOrAddAsync<IReliableDictionary<int, string>>(CountyNameDictionaryName);
+                        await this.StateManager.GetOrAddAsync<IReliableDictionary<int, string>>(CountyNameDictionaryName);
 
                     //every interval seconds, grab the counties and send them to national
                     await Task.Delay(this.interval, cancellationToken);
@@ -142,8 +141,8 @@ namespace HealthMetrics.CountyService
                                 HttpWebRequest request = WebRequest.CreateHttp(serviceAddress);
                                 request.Method = "POST";
                                 request.ContentType = "application/json";
-                                request.Timeout = (int)client.OperationTimeout.TotalMilliseconds;
-                                request.ReadWriteTimeout = (int)client.ReadWriteTimeout.TotalMilliseconds;
+                                request.Timeout = (int) client.OperationTimeout.TotalMilliseconds;
+                                request.ReadWriteTimeout = (int) client.ReadWriteTimeout.TotalMilliseconds;
 
                                 using (Stream requestStream = request.GetRequestStream())
                                 {
@@ -156,7 +155,7 @@ namespace HealthMetrics.CountyService
                                             buffer.Flush();
                                         }
 
-                                        using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                                        using (HttpWebResponse response = (HttpWebResponse) request.GetResponse())
                                         {
                                             ServiceEventSource.Current.ServiceMessage(this, "County Data Sent {0}", serviceAddress);
                                             return Task.FromResult(true);
@@ -170,7 +169,10 @@ namespace HealthMetrics.CountyService
                 catch (TimeoutException te)
                 {
                     // transient error. Retry.
-                    ServiceEventSource.Current.ServiceMessage(this, "CountyService encountered an exception trying to send data to National Service: TimeoutException in RunAsync: {0}", te.ToString());
+                    ServiceEventSource.Current.ServiceMessage(
+                        this,
+                        "CountyService encountered an exception trying to send data to National Service: TimeoutException in RunAsync: {0}",
+                        te.ToString());
                 }
                 catch (FabricNotReadableException)
                 {
@@ -179,7 +181,10 @@ namespace HealthMetrics.CountyService
                 catch (FabricTransientException fte)
                 {
                     // transient error. Retry.
-                    ServiceEventSource.Current.ServiceMessage(this, "CountyService encountered an exception trying to send data to National Service: FabricTransientException in RunAsync: {0}", fte.ToString());
+                    ServiceEventSource.Current.ServiceMessage(
+                        this,
+                        "CountyService encountered an exception trying to send data to National Service: FabricTransientException in RunAsync: {0}",
+                        fte.ToString());
                 }
                 catch (WebException)
                 {

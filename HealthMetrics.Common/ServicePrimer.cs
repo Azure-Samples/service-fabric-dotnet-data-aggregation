@@ -39,29 +39,25 @@ namespace HealthMetrics.Common
         {
             int maxRetryCount = 100;
             int currentAttempt = 0;
-            bool complete = false;
 
-            while (currentAttempt < maxRetryCount && !complete && !token.IsCancellationRequested)
+            while (currentAttempt < maxRetryCount && !token.IsCancellationRequested)
             {
                 try
                 {
-
                     StatefulServiceDescription description =
                         await this.Client.ServiceManager.GetServiceDescriptionAsync(serviceInstanceUri) as StatefulServiceDescription;
 
                     int targetTotalReplicas = description.TargetReplicaSetSize;
                     if (description.PartitionSchemeDescription is UniformInt64RangePartitionSchemeDescription)
                     {
-                        targetTotalReplicas *= ((UniformInt64RangePartitionSchemeDescription)description.PartitionSchemeDescription).PartitionCount;
+                        targetTotalReplicas *= ((UniformInt64RangePartitionSchemeDescription) description.PartitionSchemeDescription).PartitionCount;
                     }
 
                     ServicePartitionList partitions = await this.Client.QueryManager.GetPartitionListAsync(serviceInstanceUri);
                     int replicaTotal = 0;
 
-                    while (replicaTotal < targetTotalReplicas && !token.IsCancellationRequested)
+                    while (!token.IsCancellationRequested)
                     {
-                        await Task.Delay(this.interval, token);
-
                         replicaTotal = 0;
                         foreach (Partition partition in partitions)
                         {
@@ -69,15 +65,14 @@ namespace HealthMetrics.Common
 
                             replicaTotal += replicaList.Count(x => x.ReplicaStatus == System.Fabric.Query.ServiceReplicaStatus.Ready);
                         }
+
+                        if (replicaTotal <= targetTotalReplicas)
+                        {
+                            return;
+                        }
                     }
-
-                    complete = true;
                 }
-                catch (Exception e)
-                {
-
-                }
-                finally
+                catch
                 {
                     await Task.Delay(this.interval, token);
                     currentAttempt++;

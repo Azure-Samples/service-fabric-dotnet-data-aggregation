@@ -31,7 +31,7 @@ namespace HealthMetrics.BandCreationService
             }
             catch (Exception e)
             {
-                var cx = FabricRuntime.GetActivationContext();
+                CodePackageActivationContext cx = FabricRuntime.GetActivationContext();
                 HealthInformation info = new HealthInformation("ProcessHost", "HostCrashing", HealthState.Error);
                 info.Description = e.ToString();
                 info.TimeToLive = TimeSpan.FromMinutes(2);

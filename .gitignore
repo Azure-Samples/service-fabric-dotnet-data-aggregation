@@ -210,3 +210,9 @@ GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
 /ServiceFabricServicesBackup
+/HealthMetrics.Common/ServicePrimer_REMOTE_19152.cs
+/HealthMetrics.Common/ServicePrimer_LOCAL_19152.cs
+/HealthMetrics.Common/ServicePrimer_BASE_19152.cs
+/HealthMetrics.Common/ServicePrimer_BACKUP_19152.cs
+/HealthMetrics.Common/ServicePrimer.cs.orig
+*.orig
