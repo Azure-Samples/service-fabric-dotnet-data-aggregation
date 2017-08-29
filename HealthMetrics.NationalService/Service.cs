@@ -61,9 +61,22 @@ namespace HealthMetrics.NationalService
 
                 case NotifyDictionaryChangedAction.Add:
                     var addEvent = e as NotifyDictionaryItemAddedEventArgs<int, NationalCountyStats>;
-                    statsDictionary["totalDoctors"] = addEvent.Value.DoctorCount;
-                    statsDictionary["totalPatientCount"] = addEvent.Value.PatientCount;
-                    statsDictionary["totalHealthReportCount"] = addEvent.Value.HealthReportCount;
+
+                    long tmp = -1;
+
+                    if (statsDictionary.TryGetValue("totalDoctors", out tmp))
+                    {
+                        statsDictionary["totalDoctors"] += addEvent.Value.DoctorCount;
+                        statsDictionary["totalPatientCount"] += addEvent.Value.PatientCount;
+                        statsDictionary["totalHealthReportCount"] += addEvent.Value.HealthReportCount;
+                    }
+                    else
+                    {
+                        statsDictionary["totalDoctors"] = addEvent.Value.DoctorCount;
+                        statsDictionary["totalPatientCount"] = addEvent.Value.PatientCount;
+                        statsDictionary["totalHealthReportCount"] = addEvent.Value.HealthReportCount;
+                    }
+
                     historyDictionary[addEvent.Key] = new DataSet(addEvent.Value.DoctorCount, addEvent.Value.PatientCount, addEvent.Value.HealthReportCount);
                     return;
 

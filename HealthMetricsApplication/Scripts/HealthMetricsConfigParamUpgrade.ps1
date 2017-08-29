@@ -1,10 +1,10 @@
-﻿$cloud = $true
+﻿$cloud = $false
 $certSecure = $false
-$AADSecure = $true
+$AADSecure = $false
 
 if($cloud)
 {
-    $cloudAddress = "wincontainer005.southcentralus.cloudapp.azure.com"
+    $cloudAddress = ""
     $clusterAddress = $cloudAddress+":19000"
 }
 else
@@ -33,8 +33,7 @@ else
 
 $parameters = @{}
 $parameters.Add("ScoreCalculationMode","Mode2")
-#$parameters.Add("GenerateKnownPeople","false")
-Start-ServiceFabricApplicationUpgrade -ApplicationName "fabric:/HealthMetrics" -ApplicationTypeVersion "1.0.0.0" -Monitored -FailureAction Rollback -ApplicationParameter $parameters -Force -UpgradeReplicaSetCheckTimeoutSec 120 -HealthCheckRetryTimeoutSec 1 -HealthCheckWaitDurationSec 1 -HealthCheckStableDurationSec 1 -UpgradeDomainTimeoutSec 600 -UpgradeTimeoutSec 1200
+Start-ServiceFabricApplicationUpgrade -ApplicationName "fabric:/HealthMetrics" -ApplicationTypeVersion "1.0.0.0" -Monitored -FailureAction Rollback -ApplicationParameter $parameters -Force -UpgradeReplicaSetCheckTimeoutSec 60 -HealthCheckRetryTimeoutSec 1 -HealthCheckWaitDurationSec 1 -HealthCheckStableDurationSec 1 -UpgradeDomainTimeoutSec 300 -UpgradeTimeoutSec 18000
 #Send-ServiceFabricServiceHealthReport -HealthProperty SomeHealthReport -HealthState Error -ServiceName fabric:/HealthMetrics/HealthMetrics.NationalService -SourceId user -RemoveWhenExpired -TimeToLiveSec 240
 
 while($true)

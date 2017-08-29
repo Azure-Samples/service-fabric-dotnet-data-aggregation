@@ -17,7 +17,7 @@
   <ConfigPackage Name="Config" Version="1.0.0.0" />
   <Resources>
     <Endpoints>
-      <Endpoint Name="ServiceEndpoint" Type="Input" Protocol="http" Port="8505" />
+      <Endpoint Name="ServiceEndpoint" Type="Input" Protocol="http" Port="80" />
     </Endpoints>
   </Resources>
 </ServiceManifest>

@@ -182,9 +182,9 @@ namespace HealthMetrics.WebService.Controllers
                         //otherwise we will bounce around other partitions until we find an actor
                     }
                 }
-                catch
+                catch (Exception e)
                 {
-
+                    ServiceEventSource.Current.Message("Exception when obtaining actor ID: " + e.ToString());
                 }
             }
 

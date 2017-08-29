@@ -1,12 +1,11 @@
-﻿$cloud = $true
-$singleNode = $false
+﻿$cloud = $false
+$singleNode = $true
 $certSecure = $false
-$AADSecure = $true
-$constrainedNodeTypes = $true
+$AADSecure = $false
 
 if($cloud)
 {
-    $cloudAddress = "wincontainer005.southcentralus.cloudapp.azure.com"
+    $cloudAddress = ""
     $clusterAddress = $cloudAddress+":19000"
 }
 else

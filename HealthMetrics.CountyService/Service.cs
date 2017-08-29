@@ -213,7 +213,6 @@ namespace HealthMetrics.CountyService
             };
         }
 
-
         private void UpdateConfigSettings(ConfigurationSettings configSettings)
         {
             KeyedCollection<string, ConfigurationProperty> parameters = configSettings.Sections["HealthMetrics.CountyService.Settings"].Parameters;

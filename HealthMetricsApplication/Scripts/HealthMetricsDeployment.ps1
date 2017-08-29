@@ -5,15 +5,15 @@
 #or the application parameters mechanism provided via the VS tooling. It is meant to serve as an example
 #of manual application and service creation and configuration. 
 
-$cloud = $true
-$singleNode = $false
+$cloud = $false
+$singleNode = $true
 $certSecure = $false
-$AADSecure = $true
+$AADSecure = $false
 $constrainedNodeTypes = $false
 
 if($cloud)
 {
-    $cloudAddress = "wincontainer005.southcentralus.cloudapp.azure.com"
+    $cloudAddress = ""
 }
 
 if($certSecure)
@@ -44,9 +44,9 @@ if($cloud)
     $webServiceInstanceCount = -1
     $bandCreationInstanceCount = -1
     $bandsPerService = "3000"
-    $countyServicePartitionCount = @{$true=1;$false=200}[$singleNode -eq $true]
-    $bandActorServicePartitionCount = @{$true=1;$false=400}[$singleNode -eq $true]
-    $doctorActorServicePartitionCount = @{$true=1;$false=400}[$singleNode -eq $true]
+    $countyServicePartitionCount = @{$true=1;$false=10}[$singleNode -eq $true]
+    $bandActorServicePartitionCount = @{$true=1;$false=10}[$singleNode -eq $true]
+    $doctorActorServicePartitionCount = @{$true=1;$false=10}[$singleNode -eq $true]
     $imageStoreConnectionString = "fabric:ImageStore"
 }
 else
@@ -63,21 +63,12 @@ else
 
 if($constrainedNodeTypes)
 {
-#    $webServiceConstraint = "NodeType == $frontendNodeType"
-#    $countyServiceConstraint = "NodeType == $backendNodeType"
-#    $nationalServiceConstraint = "NodeType == $backendNodeType"
-#    $bandServiceConstraint = "NodeType == $backendNodeType"
-#    $doctorServiceConstraint = "NodeType == $backendNodeType"   
-#    $bandCreationServiceConstraint = "NodeType == $loadGenNodeType"   
-
-
-    $webServiceConstraint = "NodeType != sf"
-    $countyServiceConstraint = "(NodeType == bg0) || (NodeType == bg1)"
-    $nationalServiceConstraint = "(NodeType == bg0) || (NodeType == bg1)"
-    $bandServiceConstraint = "(NodeType == bg2) || (NodeType == bg3) || (NodeType == bg4) || (NodeType == bg5)"
-    $doctorServiceConstraint = "(NodeType == bg6) || (NodeType == bg7) || (NodeType == bg8) || (NodeType == bg9)"  
-    $bandCreationServiceConstraint = "NodeType != sf"   
-     
+    $webServiceConstraint = "NodeType == "
+    $countyServiceConstraint = "NodeType == "
+    $nationalServiceConstraint = "NodeType == "
+    $bandServiceConstraint = "NodeType == "
+    $doctorServiceConstraint = "NodeType == "   
+    $bandCreationServiceConstraint = "NodeType == "        
 }
 else
 {
