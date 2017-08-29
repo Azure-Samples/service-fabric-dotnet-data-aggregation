@@ -18,11 +18,13 @@ namespace HealthMetrics.NationalService
     {
         private readonly IReliableStateManager objectManager;
         private readonly ConcurrentBag<int> updatedCounties;
+        private readonly ConcurrentDictionary<string, long> statsDictionary;
 
-        public Startup(IReliableStateManager objectManager, ConcurrentBag<int> updatedCounties)
+        public Startup(IReliableStateManager objectManager, ConcurrentBag<int> updatedCounties, ConcurrentDictionary<string, long> statsDictionary)
         {
             this.objectManager = objectManager;
             this.updatedCounties = updatedCounties;
+            this.statsDictionary = statsDictionary;
         }
 
         /// <summary>
@@ -37,7 +39,7 @@ namespace HealthMetrics.NationalService
             config.MapHttpAttributeRoutes();
 
             FormatterConfig.ConfigureFormatters(config.Formatters);
-            UnityConfig.RegisterComponents(config, this.objectManager, this.updatedCounties);
+            UnityConfig.RegisterComponents(config, this.objectManager, this.updatedCounties, this.statsDictionary);
 
             appBuilder.UseWebApi(config);
 

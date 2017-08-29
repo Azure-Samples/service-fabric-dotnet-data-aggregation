@@ -20,6 +20,7 @@ namespace HealthMetrics.BandActor
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
 
+    //[StatePersistence(StatePersistence.Volatile)]
     internal class BandActor : Actor, IBandActor, IRemindable
     {
         private const string GenerateHealthDataAsyncReminder = "GenerateHealthDataAsync";
@@ -121,7 +122,6 @@ namespace HealthMetrics.BandActor
                 ConditionalValue<string> PatientInfoResult = await this.StateManager.TryGetStateAsync<string>("PatientName");
                 ConditionalValue<Guid> DoctorInfoResult = await this.StateManager.TryGetStateAsync<Guid>("DoctorId");
 
-
                 if (HeatlthInfoResult.HasValue && PatientInfoResult.HasValue && DoctorInfoResult.HasValue)
                 {
                     ActorId doctorId = new ActorId(DoctorInfoResult.Value);
@@ -179,7 +179,7 @@ namespace HealthMetrics.BandActor
 
         private async Task RegisterReminders()
         {
-            await this.RegisterReminderAsync(GenerateAndSendHealthReportReminder, null, TimeSpan.FromSeconds(this.random.Next(5, 15)), TimeSpan.FromSeconds(5));
+            await this.RegisterReminderAsync(GenerateAndSendHealthReportReminder, null, TimeSpan.FromSeconds(this.random.Next(5, 30)), TimeSpan.FromSeconds(1));
         }
     }
 }

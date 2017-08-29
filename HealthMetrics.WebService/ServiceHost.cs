@@ -7,6 +7,8 @@ namespace HealthMetrics.WebService
 {
     using System;
     using System.Diagnostics;
+    using System.Fabric;
+    using System.Fabric.Health;
     using System.Net;
     using System.Threading;
     using Microsoft.ServiceFabric.Services.Runtime;
@@ -27,7 +29,15 @@ namespace HealthMetrics.WebService
             }
             catch (Exception e)
             {
+                CodePackageActivationContext cx = FabricRuntime.GetActivationContext();
+                HealthInformation info = new HealthInformation("ProcessHost", "HostCrashing", HealthState.Error);
+                info.Description = e.ToString();
+                info.TimeToLive = TimeSpan.FromMinutes(2);
+                info.RemoveWhenExpired = true;
+                cx.ReportDeployedServicePackageHealth(info);
                 ServiceEventSource.Current.ServiceHostInitializationFailed(e);
+                Thread.Sleep(TimeSpan.FromMinutes(1));
+                throw;
             }
         }
     }

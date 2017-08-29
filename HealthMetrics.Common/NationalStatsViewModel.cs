@@ -11,7 +11,7 @@ namespace HealthMetrics.Common
     [DataContract]
     public struct NationalStatsViewModel
     {
-        public NationalStatsViewModel(int doctorCount, int patientCount, long healthReportCount, int averageHealthIndex, DateTimeOffset creationDateTime)
+        public NationalStatsViewModel(long doctorCount, long patientCount, long healthReportCount, long averageHealthIndex, DateTimeOffset creationDateTime)
         {
             this.AverageHealthIndex = averageHealthIndex;
             this.DoctorCount = doctorCount;
@@ -21,16 +21,16 @@ namespace HealthMetrics.Common
         }
 
         [DataMember]
-        public int DoctorCount { get; private set; }
+        public long DoctorCount { get; private set; }
 
         [DataMember]
-        public int PatientCount { get; private set; }
+        public long PatientCount { get; private set; }
 
         [DataMember]
         public long HealthReportCount { get; private set; }
 
         [DataMember]
-        public int AverageHealthIndex { get; private set; }
+        public long AverageHealthIndex { get; private set; }
 
         [DataMember]
         public DateTimeOffset StartTimeOffset { get; private set; }

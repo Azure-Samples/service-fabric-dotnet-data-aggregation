@@ -1,5 +1,7 @@
 ﻿$cloud = $false
-$secure = $false
+$singleNode = $true
+$certSecure = $false
+$AADSecure = $false
 
 if($cloud)
 {
@@ -11,15 +13,19 @@ else
     $clusterAddress = "127.0.0.1:19000"
 }
 
-if($secure)
+if($certSecure)
 {
     $thumbprint = ""
     $commonName = ""
 }
 
-if($secure)
+if($certSecure)
 {
-    Connect-ServiceFabricCluster $clusterAddress -FindType FindByThumbprint -FindValue $thumbprint -X509Credential -ServerCertThumbprint $thumbprint -ServerCommonName $commonName -StoreLocation CurrentUser -StoreName My -Verbose
+    Connect-ServiceFabricCluster -ConnectionEndpoint $clusterAddress -FindType FindByThumbprint -FindValue $thumbprint -X509Credential -ServerCertThumbprint $thumbprint -ServerCommonName $commonName -StoreLocation CurrentUser -StoreName My -Verbose
+}
+elseif($AADSecure) 
+{
+    Connect-ServiceFabricCluster -ConnectionEndpoint $clusterAddress -AzureActiveDirectory
 }
 else
 {

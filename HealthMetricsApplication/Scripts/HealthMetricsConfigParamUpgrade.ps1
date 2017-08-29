@@ -1,5 +1,6 @@
 ﻿$cloud = $false
-$secure = $false
+$certSecure = $false
+$AADSecure = $false
 
 if($cloud)
 {
@@ -11,15 +12,19 @@ else
     $clusterAddress = "127.0.0.1:19000"
 }
 
-if($secure)
+if($certSecure)
 {
     $thumbprint = ""
     $commonName = ""
 }
 
-if($secure)
+if($certSecure)
 {
-    Connect-ServiceFabricCluster $clusterAddress -FindType FindByThumbprint -FindValue $thumbprint -X509Credential -ServerCertThumbprint $thumbprint -ServerCommonName $commonName -StoreLocation CurrentUser -StoreName My -Verbose
+    Connect-ServiceFabricCluster -ConnectionEndpoint $clusterAddress -FindType FindByThumbprint -FindValue $thumbprint -X509Credential -ServerCertThumbprint $thumbprint -ServerCommonName $commonName -StoreLocation CurrentUser -StoreName My -Verbose
+}
+elseif($AADSecure) 
+{
+    Connect-ServiceFabricCluster -ConnectionEndpoint $clusterAddress -AzureActiveDirectory
 }
 else
 {
@@ -28,8 +33,7 @@ else
 
 $parameters = @{}
 $parameters.Add("ScoreCalculationMode","Mode2")
-$parameters.Add("GenerateKnownPeople","false")
-Start-ServiceFabricApplicationUpgrade -ApplicationName "fabric:/HealthMetrics" -ApplicationTypeVersion "1.0.0.0" -Monitored -FailureAction Rollback -ApplicationParameter $parameters -Force -UpgradeReplicaSetCheckTimeoutSec 60 -HealthCheckRetryTimeoutSec 1 -HealthCheckWaitDurationSec 1 -HealthCheckStableDurationSec 1 -UpgradeDomainTimeoutSec 180 -UpgradeTimeoutSec 900
+Start-ServiceFabricApplicationUpgrade -ApplicationName "fabric:/HealthMetrics" -ApplicationTypeVersion "1.0.0.0" -Monitored -FailureAction Rollback -ApplicationParameter $parameters -Force -UpgradeReplicaSetCheckTimeoutSec 60 -HealthCheckRetryTimeoutSec 1 -HealthCheckWaitDurationSec 1 -HealthCheckStableDurationSec 1 -UpgradeDomainTimeoutSec 300 -UpgradeTimeoutSec 18000
 #Send-ServiceFabricServiceHealthReport -HealthProperty SomeHealthReport -HealthState Error -ServiceName fabric:/HealthMetrics/HealthMetrics.NationalService -SourceId user -RemoveWhenExpired -TimeToLiveSec 240
 
 while($true)

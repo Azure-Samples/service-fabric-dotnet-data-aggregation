@@ -11,8 +11,10 @@ namespace HealthMetrics.NationalService
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
+    using HealthMetrics.NationalService.Models;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
+    using Microsoft.ServiceFabric.Data.Notifications;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
     using Web.Service;
@@ -20,15 +22,21 @@ namespace HealthMetrics.NationalService
     public class Service : StatefulService
     {
         public const string ServiceTypeName = "HealthMetrics.NationalServiceType";
+        private const string HealthStatusDictionary = "healthStatusDictionary";
+        private const string TimeStatsDictionary = "TimeTracker";
+        private readonly ConcurrentDictionary<string, long> statsDictionary = new ConcurrentDictionary<string, long>();
+        private readonly ConcurrentDictionary<int, DataSet> historyDictionary = new ConcurrentDictionary<int, DataSet>();
         private ConcurrentBag<int> updatedCounties = new ConcurrentBag<int>();
 
         public Service(StatefulServiceContext serviceContext) : base(serviceContext)
         {
+            this.StateManager.StateManagerChanged += this.StateManager_StateManagerChanged;
         }
 
         public Service(StatefulServiceContext serviceContext, IReliableStateManagerReplica reliableStateManagerReplica)
             : base(serviceContext, reliableStateManagerReplica)
         {
+            this.StateManager.StateManagerChanged += this.StateManager_StateManagerChanged;
         }
 
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
@@ -37,7 +45,10 @@ namespace HealthMetrics.NationalService
             {
                 new ServiceReplicaListener(
                     (initParams) =>
-                        new HttpCommunicationListener("healthnational", new Startup(this.StateManager, this.updatedCounties), this.Context))
+                        new HttpCommunicationListener(
+                            "healthnational",
+                            new Startup(this.StateManager, this.updatedCounties, this.statsDictionary),
+                            this.Context))
             };
         }
 
@@ -75,6 +86,12 @@ namespace HealthMetrics.NationalService
                         te.ToString());
                     continue;
                 }
+                catch (FabricNotReadableException)
+                {
+                    // transient error. Retry.
+                    retryCount++;
+                    continue;
+                }
                 catch (FabricTransientException fte)
                 {
                     // transient error. Retry.
@@ -96,6 +113,85 @@ namespace HealthMetrics.NationalService
                     throw;
                 }
             }
+        }
+
+        private void StateManager_StateManagerChanged(object sender, NotifyStateManagerChangedEventArgs e)
+        {
+            if (e.Action == NotifyStateManagerChangedAction.Add)
+            {
+                NotifyStateManagerSingleEntityChangedEventArgs args = e as NotifyStateManagerSingleEntityChangedEventArgs;
+                if (args.ReliableState.Name.ToString() == "urn:" + HealthStatusDictionary)
+                {
+                    IReliableDictionary<int, NationalCountyStats> dictionary = (IReliableDictionary<int, NationalCountyStats>) args.ReliableState;
+                    dictionary.DictionaryChanged += this.Dictionary_DictionaryChanged;
+                }
+            }
+        }
+
+        private void Dictionary_DictionaryChanged(object sender, NotifyDictionaryChangedEventArgs<int, NationalCountyStats> e)
+        {
+            switch (e.Action)
+            {
+                case NotifyDictionaryChangedAction.Clear:
+                    return;
+
+                case NotifyDictionaryChangedAction.Add:
+                    NotifyDictionaryItemAddedEventArgs<int, NationalCountyStats> addEvent = e as NotifyDictionaryItemAddedEventArgs<int, NationalCountyStats>;
+
+                    long tmp = -1;
+
+                    if (this.statsDictionary.TryGetValue("totalDoctors", out tmp))
+                    {
+                        this.statsDictionary["totalDoctors"] += addEvent.Value.DoctorCount;
+                        this.statsDictionary["totalPatientCount"] += addEvent.Value.PatientCount;
+                        this.statsDictionary["totalHealthReportCount"] += addEvent.Value.HealthReportCount;
+                    }
+                    else
+                    {
+                        this.statsDictionary["totalDoctors"] = addEvent.Value.DoctorCount;
+                        this.statsDictionary["totalPatientCount"] = addEvent.Value.PatientCount;
+                        this.statsDictionary["totalHealthReportCount"] = addEvent.Value.HealthReportCount;
+                    }
+
+                    this.historyDictionary[addEvent.Key] = new DataSet(
+                        addEvent.Value.DoctorCount,
+                        addEvent.Value.PatientCount,
+                        addEvent.Value.HealthReportCount);
+                    return;
+
+                case NotifyDictionaryChangedAction.Update:
+                    NotifyDictionaryItemUpdatedEventArgs<int, NationalCountyStats> updateEvent =
+                        e as NotifyDictionaryItemUpdatedEventArgs<int, NationalCountyStats>;
+                    this.statsDictionary["totalDoctors"] += (updateEvent.Value.DoctorCount - this.historyDictionary[updateEvent.Key].totalDoctors);
+                    this.statsDictionary["totalPatientCount"] += (updateEvent.Value.PatientCount - this.historyDictionary[updateEvent.Key].totalPatientCount);
+                    this.statsDictionary["totalHealthReportCount"] +=
+                        (updateEvent.Value.HealthReportCount - this.historyDictionary[updateEvent.Key].totalHealthReportCount);
+                    this.historyDictionary[updateEvent.Key] = new DataSet(
+                        updateEvent.Value.DoctorCount,
+                        updateEvent.Value.PatientCount,
+                        updateEvent.Value.HealthReportCount);
+                    return;
+
+                case NotifyDictionaryChangedAction.Remove:
+                    return;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    struct DataSet
+    {
+        public long totalDoctors;
+        public long totalPatientCount;
+        public long totalHealthReportCount;
+
+        public DataSet(long doctors, long patients, long reports)
+        {
+            this.totalDoctors = doctors;
+            this.totalPatientCount = patients;
+            this.totalHealthReportCount = reports;
         }
     }
 }

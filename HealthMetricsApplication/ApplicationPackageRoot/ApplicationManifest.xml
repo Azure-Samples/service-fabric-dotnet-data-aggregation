@@ -2,11 +2,17 @@
 <ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="HealthMetrics" ApplicationTypeVersion="1.0.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <Parameters>
     <Parameter Name="ScoreCalculationMode" DefaultValue="Mode1" />
-    <Parameter Name="CreationServiceParallelThreads" DefaultValue="4" />
+    <Parameter Name="CreationServiceParallelThreads" DefaultValue="8" />
     <Parameter Name="MaxBandsToCreatePerServiceInstance" DefaultValue="4000" />
     <Parameter Name="GenerateKnownPeople" DefaultValue="false" />
     <Parameter Name="KnownPatientId" DefaultValue="0e83c959-657d-ea06-0e2d-13f749d62229" />
     <Parameter Name="KnownDoctorId" DefaultValue="342827c7-bd78-d825-f312-2eae41f8ea45" />
+    <Parameter Name="BandActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="BandActorService_MinReplicaSetSize" DefaultValue="1" />
+    <Parameter Name="BandActorService_TargetReplicaSetSize" DefaultValue="1" />
+    <Parameter Name="DoctorActorService_PartitionCount" DefaultValue="10" />
+    <Parameter Name="DoctorActorService_MinReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="DoctorActorService_TargetReplicaSetSize" DefaultValue="3" />
   </Parameters>
   <ServiceManifestImport>
     <ServiceManifestRef ServiceManifestName="HealthMetrics.DoctorActorPkg" ServiceManifestVersion="1.0.0" />

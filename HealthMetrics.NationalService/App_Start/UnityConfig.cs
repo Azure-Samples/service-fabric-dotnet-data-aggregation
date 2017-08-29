@@ -13,7 +13,7 @@ namespace HealthMetrics.NationalService
 
     public static class UnityConfig
     {
-        public static void RegisterComponents(HttpConfiguration config, IReliableStateManager objectManager, ConcurrentBag<int> updatedCounties)
+        public static void RegisterComponents(HttpConfiguration config, IReliableStateManager objectManager, ConcurrentBag<int> updatedCounties, ConcurrentDictionary<string, long> statsDictionary)
         {
             UnityContainer container = new UnityContainer();
 
@@ -21,9 +21,13 @@ namespace HealthMetrics.NationalService
                 new TransientLifetimeManager(),
                 new InjectionConstructor(objectManager, updatedCounties));
 
+            container.RegisterType<NationalHealthController>(
+                new TransientLifetimeManager(),
+                new InjectionConstructor(objectManager, updatedCounties));
+
             container.RegisterType<NationalStatsController>(
                 new TransientLifetimeManager(),
-                new InjectionConstructor(objectManager));
+                new InjectionConstructor(objectManager, statsDictionary));
 
             config.DependencyResolver = new UnityDependencyResolver(container);
         }

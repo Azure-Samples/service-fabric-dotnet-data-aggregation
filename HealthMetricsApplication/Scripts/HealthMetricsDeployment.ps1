@@ -7,16 +7,16 @@
 
 $cloud = $false
 $singleNode = $true
-$secure = $false
+$certSecure = $false
+$AADSecure = $false
 $constrainedNodeTypes = $false
-
 
 if($cloud)
 {
     $cloudAddress = ""
 }
 
-if($secure)
+if($certSecure)
 {
     $thumbprint = ""
     $commonName = ""
@@ -38,20 +38,16 @@ $appName = "fabric:/HealthMetrics"
 $appType = "HealthMetrics"
 $appInitialVersion = "1.0.0.0"
 
-$frontendNodeType = "Front"
-$backendNodeType = "Back"
-$loadGenNodeType = "System"
-
 if($cloud)
 {
     $clusterAddress = $cloudAddress+":19000"
     $webServiceInstanceCount = -1
     $bandCreationInstanceCount = -1
-    $countyServicePartitionCount = @{$true=1;$false=5}[$singleNode -eq $true]
-    $bandActorServicePartitionCount = @{$true=1;$false=15}[$singleNode -eq $true]
-    $doctorActorServicePartitionCount = @{$true=1;$false=15}[$singleNode -eq $true]
+    $bandsPerService = "3000"
+    $countyServicePartitionCount = @{$true=1;$false=10}[$singleNode -eq $true]
+    $bandActorServicePartitionCount = @{$true=1;$false=10}[$singleNode -eq $true]
+    $doctorActorServicePartitionCount = @{$true=1;$false=10}[$singleNode -eq $true]
     $imageStoreConnectionString = "fabric:ImageStore"
-    $bandsPerService = "5000"
 }
 else
 {
@@ -67,13 +63,12 @@ else
 
 if($constrainedNodeTypes)
 {
-    $webServiceConstraint = "NodeType == $frontendNodeType"
-    $countyServiceConstraint = "NodeType == $backendNodeType"
-    $nationalServiceConstraint = "NodeType == $backendNodeType"
-    $bandServiceConstraint = "NodeType == $backendNodeType"
-    $doctorServiceConstraint = "NodeType == $backendNodeType"   
-    $bandCreationServiceConstraint = "NodeType == $loadGenNodeType"   
-     
+    $webServiceConstraint = "NodeType == "
+    $countyServiceConstraint = "NodeType == "
+    $nationalServiceConstraint = "NodeType == "
+    $bandServiceConstraint = "NodeType == "
+    $doctorServiceConstraint = "NodeType == "   
+    $bandCreationServiceConstraint = "NodeType == "        
 }
 else
 {
@@ -109,15 +104,17 @@ $bandActorServiceName= "BandActorService"
 $bandActorReplicaCount = @{$true=1;$false=3}[$singleNode -eq $true]
 
 $parameters = @{}
-$parameters.Add("ScoreCalculationMode","Mode1")
-$parameters.Add("GenerateKnownPeople","false")
 $parameters.Add("MaxBandsToCreatePerServiceInstance", $bandsPerService)
 
 Write-Host "Connecting to $clusterAddress"
 
-if($secure)
+if($certSecure)
 {
     Connect-ServiceFabricCluster -ConnectionEndpoint $clusterAddress -FindType FindByThumbprint -FindValue $thumbprint -X509Credential -ServerCertThumbprint $thumbprint -ServerCommonName $commonName -StoreLocation CurrentUser -StoreName My -Verbose
+}
+elseif($AADSecure) 
+{
+    Connect-ServiceFabricCluster -ConnectionEndpoint $clusterAddress -AzureActiveDirectory
 }
 else
 {
@@ -149,19 +146,19 @@ Read-Host -Prompt "Continue?"
 New-ServiceFabricApplication -ApplicationName $appName -ApplicationTypeName $appType -ApplicationTypeVersion $appInitialVersion -ApplicationParameter $parameters
 
 #create web
-New-ServiceFabricService -ServiceTypeName $webServiceType -Stateless -ApplicationName $appName -ServiceName "$appName/$webServiceName" -PartitionSchemeSingleton -InstanceCount $webServiceInstanceCount -PlacementConstraint $webServiceConstraint 
+New-ServiceFabricService -ServiceTypeName $webServiceType -Stateless -ApplicationName $appName -ServiceName "$appName/$webServiceName" -PartitionSchemeSingleton -InstanceCount $webServiceInstanceCount -PlacementConstraint $webServiceConstraint -ServicePackageActivationMode ExclusiveProcess
 
 #create national
-New-ServiceFabricService -ServiceTypeName $nationalServiceType -Stateful -HasPersistedState -ApplicationName $appName -ServiceName "$appName/$nationalServiceName" -PartitionSchemeSingleton -MinReplicaSetSize $nationalServiceReplicaCount -TargetReplicaSetSize $nationalServiceReplicaCount -PlacementConstraint $nationalServiceConstraint
+New-ServiceFabricService -ServiceTypeName $nationalServiceType -Stateful -HasPersistedState -ApplicationName $appName -ServiceName "$appName/$nationalServiceName" -PartitionSchemeSingleton -MinReplicaSetSize $nationalServiceReplicaCount -TargetReplicaSetSize $nationalServiceReplicaCount -PlacementConstraint $nationalServiceConstraint -ServicePackageActivationMode ExclusiveProcess
 
 #create county
-New-ServiceFabricService -ServiceTypeName $countyServiceType -Stateful -HasPersistedState -ApplicationName $appName -ServiceName "$appName/$countyServiceName" -PartitionSchemeUniformInt64 -LowKey $countyLowKey -HighKey $countyHighKey -PartitionCount $countyServicePartitionCount -MinReplicaSetSize $countyServiceReplicaCount -TargetReplicaSetSize $countyServiceReplicaCount -PlacementConstraint $countyServiceConstraint
+New-ServiceFabricService -ServiceTypeName $countyServiceType -Stateful -HasPersistedState -ApplicationName $appName -ServiceName "$appName/$countyServiceName" -PartitionSchemeUniformInt64 -LowKey $countyLowKey -HighKey $countyHighKey -PartitionCount $countyServicePartitionCount -MinReplicaSetSize $countyServiceReplicaCount -TargetReplicaSetSize $countyServiceReplicaCount -PlacementConstraint $countyServiceConstraint -ServicePackageActivationMode ExclusiveProcess
 
 #create doctor
-New-ServiceFabricService -ServiceTypeName $doctorActorServiceType -Stateful -ApplicationName $appName -ServiceName "$appName/$doctorActorServiceName" -PartitionSchemeUniformInt64 -LowKey $lowkey -HighKey $highkey -PartitionCount $doctorActorServicePartitionCount -MinReplicaSetSize $doctorServiceReplicaCount -TargetReplicaSetSize $doctorServiceReplicaCount -PlacementConstraint $doctorServiceConstraint
+New-ServiceFabricService -ServiceTypeName $doctorActorServiceType -Stateful -ApplicationName $appName -ServiceName "$appName/$doctorActorServiceName" -PartitionSchemeUniformInt64 -LowKey $lowkey -HighKey $highkey -PartitionCount $doctorActorServicePartitionCount -MinReplicaSetSize $doctorServiceReplicaCount -TargetReplicaSetSize $doctorServiceReplicaCount -PlacementConstraint $doctorServiceConstraint -ServicePackageActivationMode ExclusiveProcess
 
 #create band
-New-ServiceFabricService -ServiceTypeName $bandActorServiceType -Stateful -ApplicationName $appName -ServiceName "$appName/$bandActorServiceName" -PartitionSchemeUniformInt64 -LowKey $lowkey -HighKey $highkey -PartitionCount $bandActorServicePartitionCount -MinReplicaSetSize $bandActorReplicaCount -TargetReplicaSetSize $bandActorReplicaCount -PlacementConstraint $bandServiceConstraint
+New-ServiceFabricService -ServiceTypeName $bandActorServiceType -Stateful -ApplicationName $appName -ServiceName "$appName/$bandActorServiceName" -PartitionSchemeUniformInt64 -LowKey $lowkey -HighKey $highkey -PartitionCount $bandActorServicePartitionCount -MinReplicaSetSize $bandActorReplicaCount -TargetReplicaSetSize $bandActorReplicaCount -PlacementConstraint $bandServiceConstraint -ServicePackageActivationMode ExclusiveProcess
 
 #create band creation
-New-ServiceFabricService -ServiceTypeName $bandCreationServiceType -Stateless -ApplicationName $appName -ServiceName "$appName/$bandCreationServiceName" -PartitionSchemeSingleton -InstanceCount $bandCreationInstanceCount -PlacementConstraint $bandCreationServiceConstraint
+New-ServiceFabricService -ServiceTypeName $bandCreationServiceType -Stateless -ApplicationName $appName -ServiceName "$appName/$bandCreationServiceName" -PartitionSchemeSingleton -InstanceCount $bandCreationInstanceCount -PlacementConstraint $bandCreationServiceConstraint -ServicePackageActivationMode ExclusiveProcess

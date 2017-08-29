@@ -23,6 +23,7 @@ namespace HealthMetrics.NationalService
         private readonly IReliableStateManager stateManager;
         private readonly ConcurrentBag<int> updatedCounties;
 
+
         public NationalHealthController(IReliableStateManager stateManager, ConcurrentBag<int> updatedCounties)
         {
             this.stateManager = stateManager;
@@ -74,7 +75,6 @@ namespace HealthMetrics.NationalService
                 await this.stateManager.GetOrAddAsync<IReliableDictionary<int, NationalCountyStats>>(HealthStatusDictionary);
 
             List<CountyHealth> countyData = new List<CountyHealth>();
-
 
             IList<int> countiesToProcess = this.updatedCounties.ToArray();
 

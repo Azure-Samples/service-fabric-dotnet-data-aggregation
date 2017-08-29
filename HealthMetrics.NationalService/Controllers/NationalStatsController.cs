@@ -6,8 +6,8 @@
 namespace HealthMetrics.NationalService
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Threading;
     using System.Threading.Tasks;
     using System.Web.Http;
     using HealthMetrics.Common;
@@ -22,12 +22,14 @@ namespace HealthMetrics.NationalService
     {
         private const string HealthStatusDictionary = "healthStatusDictionary";
         private const string TimeStatsDictionary = "TimeTracker";
+        private readonly ConcurrentDictionary<string, long> statsDictionary;
 
         private readonly IReliableStateManager stateManager;
 
-        public NationalStatsController(IReliableStateManager stateManager)
+        public NationalStatsController(IReliableStateManager stateManager, ConcurrentDictionary<string, long> statsDictionary)
         {
             this.stateManager = stateManager;
+            this.statsDictionary = statsDictionary;
         }
 
         /// <summary>
@@ -38,41 +40,35 @@ namespace HealthMetrics.NationalService
         [Route("national/stats")]
         public async Task<NationalStatsViewModel> Get()
         {
-            IReliableDictionary<int, NationalCountyStats> dictionary =
-                await this.stateManager.GetOrAddAsync<IReliableDictionary<int, NationalCountyStats>>(HealthStatusDictionary);
-            IReliableDictionary<string, DateTimeOffset> timeDictionary =
-                await this.stateManager.GetOrAddAsync<IReliableDictionary<string, DateTimeOffset>>(TimeStatsDictionary);
-
-            int totalDoctorCount = 0;
-            int totalPatientCount = 0;
-            long totalHealthReportCount = 0;
-            DateTimeOffset offset = DateTimeOffset.MinValue;
-
-            using (ITransaction tx = this.stateManager.CreateTransaction())
+            try
             {
-                ConditionalValue<DateTimeOffset> creationTimeResult = await timeDictionary.TryGetValueAsync(tx, "StartTime");
+                IReliableDictionary<string, DateTimeOffset> timeDictionary =
+                    await this.stateManager.GetOrAddAsync<IReliableDictionary<string, DateTimeOffset>>(TimeStatsDictionary);
 
-                if (creationTimeResult.HasValue)
+                DateTimeOffset offset = DateTimeOffset.MinValue;
+                IList<KeyValuePair<int, NationalCountyStats>> items = new List<KeyValuePair<int, NationalCountyStats>>();
+
+                using (ITransaction tx = this.stateManager.CreateTransaction())
                 {
-                    offset = creationTimeResult.Value;
-                }
+                    ConditionalValue<DateTimeOffset> creationTimeResult = await timeDictionary.TryGetValueAsync(tx, "StartTime");
 
-                IAsyncEnumerator<KeyValuePair<int, NationalCountyStats>> enumerator = (await dictionary.CreateEnumerableAsync(tx)).GetAsyncEnumerator();
-
-                while (await enumerator.MoveNextAsync(CancellationToken.None))
-                {
-                    IList<KeyValuePair<int, NationalCountyStats>> items = new List<KeyValuePair<int, NationalCountyStats>>();
-                    items.Add(enumerator.Current);
-
-                    foreach (KeyValuePair<int, NationalCountyStats> item in items)
+                    if (creationTimeResult.HasValue)
                     {
-                        totalDoctorCount += item.Value.DoctorCount;
-                        totalPatientCount += item.Value.PatientCount;
-                        totalHealthReportCount += item.Value.HealthReportCount;
+                        offset = creationTimeResult.Value;
                     }
-                }
 
-                return new NationalStatsViewModel(totalDoctorCount, totalPatientCount, totalHealthReportCount, 0, offset);
+                    return new NationalStatsViewModel(
+                        this.statsDictionary["totalDoctors"],
+                        this.statsDictionary["totalPatientCount"],
+                        this.statsDictionary["totalHealthReportCount"],
+                        0,
+                        offset);
+                }
+            }
+            catch (Exception e)
+            {
+                ServiceEventSource.Current.Message(e.ToString());
+                throw;
             }
         }
     }

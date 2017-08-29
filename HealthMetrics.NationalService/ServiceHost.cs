@@ -7,6 +7,8 @@ namespace HealthMetrics.NationalService
 {
     using System;
     using System.Diagnostics;
+    using System.Fabric;
+    using System.Fabric.Health;
     using System.Net;
     using System.Threading;
     using Microsoft.ServiceFabric.Services.Runtime;
@@ -17,7 +19,14 @@ namespace HealthMetrics.NationalService
         {
             try
             {
-                ServicePointManager.DefaultConnectionLimit = 10240;
+                //while(!Debugger.IsAttached)
+                //{
+                //    Thread.Sleep(TimeSpan.FromSeconds(5));
+                //}
+
+                ServicePointManager.DefaultConnectionLimit = 1024;
+                ServicePointManager.SetTcpKeepAlive(true, 2000, 1000);
+                ServicePointManager.UseNagleAlgorithm = false;
 
                 ServiceRuntime.RegisterServiceAsync(Service.ServiceTypeName, context => new Service(context)).GetAwaiter().GetResult();
 
@@ -27,7 +36,15 @@ namespace HealthMetrics.NationalService
             }
             catch (Exception e)
             {
+                CodePackageActivationContext cx = FabricRuntime.GetActivationContext();
+                HealthInformation info = new HealthInformation("ProcessHost", "HostCrashing", HealthState.Error);
+                info.Description = e.ToString();
+                info.TimeToLive = TimeSpan.FromMinutes(2);
+                info.RemoveWhenExpired = true;
+                cx.ReportDeployedServicePackageHealth(info);
                 ServiceEventSource.Current.ServiceHostInitializationFailed(e);
+                Thread.Sleep(TimeSpan.FromMinutes(1));
+                throw;
             }
         }
     }

@@ -68,16 +68,15 @@ namespace HealthMetrics.CountyService
             ServicePrimer primer = new ServicePrimer();
             await primer.WaitForStatefulService(this.nationalServiceInstanceUri, cancellationToken);
 
-
-            try
+            ServiceEventSource.Current.ServiceMessage(this, "CountyService starting data processing.");
+            while (!cancellationToken.IsCancellationRequested)
             {
-                IReliableDictionary<int, string> countyNamesDictionary =
-                    await this.StateManager.GetOrAddAsync<IReliableDictionary<int, string>>(CountyNameDictionaryName);
-
-                ServiceEventSource.Current.ServiceMessage(this, "CountyService starting data processing.");
-                while (!cancellationToken.IsCancellationRequested)
+                try
                 {
-                    //every ten seconds, grab the counties and send them to national
+                    IReliableDictionary<int, string> countyNamesDictionary =
+                        await this.StateManager.GetOrAddAsync<IReliableDictionary<int, string>>(CountyNameDictionaryName);
+
+                    //every interval seconds, grab the counties and send them to national
                     await Task.Delay(this.interval, cancellationToken);
 
                     ServicePartitionClient<HttpCommunicationClient> servicePartitionClient =
@@ -167,32 +166,40 @@ namespace HealthMetrics.CountyService
                             cancellationToken);
                     }
                 }
-            }
-            catch (TimeoutException te)
-            {
-                // transient error. Retry.
-                ServiceEventSource.Current.ServiceMessage(
-                    this,
-                    "CountyService encountered an exception trying to send data to National Service: TimeoutException in RunAsync: {0}",
-                    te.ToString());
-            }
-            catch (FabricTransientException fte)
-            {
-                // transient error. Retry.
-                ServiceEventSource.Current.ServiceMessage(
-                    this,
-                    "CountyService encountered an exception trying to send data to National Service: FabricTransientException in RunAsync: {0}",
-                    fte.ToString());
-            }
-            catch (FabricNotPrimaryException)
-            {
-                // not primary any more, time to quit.
-                return;
-            }
-            catch (Exception ex)
-            {
-                ServiceEventSource.Current.ServiceMessage(this, ex.ToString());
-                throw;
+                catch (TimeoutException te)
+                {
+                    // transient error. Retry.
+                    ServiceEventSource.Current.ServiceMessage(
+                        this,
+                        "CountyService encountered an exception trying to send data to National Service: TimeoutException in RunAsync: {0}",
+                        te.ToString());
+                }
+                catch (FabricNotReadableException)
+                {
+                    // transient error. Retry.
+                }
+                catch (FabricTransientException fte)
+                {
+                    // transient error. Retry.
+                    ServiceEventSource.Current.ServiceMessage(
+                        this,
+                        "CountyService encountered an exception trying to send data to National Service: FabricTransientException in RunAsync: {0}",
+                        fte.ToString());
+                }
+                catch (WebException)
+                {
+                    // transient error. Retry.
+                }
+                catch (FabricNotPrimaryException)
+                {
+                    // not primary any more, time to quit.
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    ServiceEventSource.Current.ServiceMessage(this, ex.ToString());
+                    throw;
+                }
             }
         }
 
@@ -210,7 +217,6 @@ namespace HealthMetrics.CountyService
                             this.Context))
             };
         }
-
 
         private void UpdateConfigSettings(ConfigurationSettings configSettings)
         {
