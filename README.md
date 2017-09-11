@@ -11,7 +11,7 @@ Learn about large-scale data aggregation and management of large volumes of end-
 Open the solution in Visual Studio, right click on the application project "HealthMetrics" and select the "Package" command.
 Ensure that your local cluster is deployed and running in a 5 node configuration via Service Fabric Local Cluster Manager.
 Inside the Visual Studio Solution Explorer, within the Application project, expand the scripts folder. Then right click on "HealthMetricsDeployment.ps1" and select "Execute as Script".
-Once the script completes, the application should be deployed and visible in Service Fabric Explorer. By default the application is hosted in your local cluster at localhost:8080
+Once the script completes, the application should be deployed and visible in Service Fabric Explorer. By default the application is hosted in your local cluster at localhost:8081
 
 ## Deploy this sample to Azure
 Open the HealthMetricsDeployment script and change the following variables defined at the top of the script:
@@ -32,7 +32,7 @@ There are several services included in the sample. They are:
 - WebService: This Service just hosts a simple web UI, web API interfaces, and serves information obtained via the NationalService so that it can be rendered.
 
 ## Upgrade Patterns
-This application supports multiple versions via the configuration parameter "Score Calculation Mode". This config is defined at the application level but is consumed by serveral of the underlying services to define their behavior.
+This application supports multiple versions via the configuration parameter "Score Calculation Mode". This config is defined at the application level but is consumed by several of the underlying services to define their behavior.
 This application supports a couple different upgrade mechanisms:
 
 ### Application Package Upgrade
@@ -42,7 +42,7 @@ In this case, since the change is at the application parameters level, only the 
 
 To do this, inside the Scripts folder, right click on ApplicationPackageUpgrade.ps1 and select Execute as Script. Note that the new application package contains only the packages that changed (which in this case is none since no change to the service code is necessary and no specific changes are made within the service's code, configuration, or data packages). Since the configuration change we want to deploy is handled direcly via the application paramteres, no additional changes to the actual service code or configuration is necessary. The upgrade will take the updated configuration changes (in this case a change to the "ScoreCalculationMode") and roll it out to the necessary services upgrade domain by upgrade domain. These services recieve a notification that their configuration has changed and apply the change without having to restart.
 
-When this happens you should see the UI of the application change to display the new scoring mode. In this case you will see a change from a three color scale (red, gree, black), to a 100 point/color scale.
+When this happens you should see the UI of the application change to display the new scoring mode. In this case you will see a change from a three color scale (red, green, black), to a 100 point/color scale.
 
 To upgrade back to the original version of the application, run the following command (make sure you're connected to the cluster first - you can just start a new PS window and type Connect-ServiceFabricCluster if you're on localhost)
 
@@ -61,7 +61,7 @@ Note: before trying this the first time, you want to make sure that the applicat
 
 - Versionless Update - The Application's parameters can be upgraded and rolled out without changing the version of the application type itself. No new application package or a version change is required, but the change will still roll out to the services upgrade domain by upgrade domain.
 
-To do this, right click on the HealthMetricsConfigParamUpgrade.ps1 script within the script folder and select "Execute as Script". I fyou want to roll back to the previous mode of score calculation, just edit the script to change the value of the ScoreCalculationMode parameter to "Mode1" and run the whole script again.
+To do this, right click on the HealthMetricsConfigParamUpgrade.ps1 script within the script folder and select "Execute as Script". If you want to roll back to the previous mode of score calculation, just edit the script to change the value of the ScoreCalculationMode parameter to "Mode1" and run the whole script again.
 
 ### Testing Automated Rollback
 - Integration with Health Monitoring - To test integration with Service Fabric's Health monitoring, run the following command while one of the upgrades is going on:
