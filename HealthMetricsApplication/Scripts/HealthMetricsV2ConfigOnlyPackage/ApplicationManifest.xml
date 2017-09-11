@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="HealthMetrics" ApplicationTypeVersion="2.0.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <Parameters>
-    <Parameter Name="ScoreCalculationMode" DefaultValue="Mode1" />
+    <Parameter Name="ScoreCalculationMode" DefaultValue="Mode2" />
     <Parameter Name="CreationServiceParallelThreads" DefaultValue="4" />
     <Parameter Name="MaxBandsToCreatePerServiceInstance" DefaultValue="6000" />
     <Parameter Name="GenerateKnownPeople" DefaultValue="false" />
