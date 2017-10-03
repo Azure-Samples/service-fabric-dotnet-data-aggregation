@@ -65,7 +65,7 @@ namespace System.Net.Http
                     response.EnsureSuccessStatusCode();
 
                     return response;
-                });
+                }, cancellationToken);
         }
     }
 }
