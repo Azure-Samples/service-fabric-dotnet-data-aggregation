@@ -14,8 +14,6 @@ namespace System.Net.Http
 
     public static class HttpClientExtensions
     {
-        private static FabricClient fabricClient = new FabricClient();
-
         private static HttpCommunicationClientFactory clientFactory = new HttpCommunicationClientFactory(
             ServicePartitionResolver.GetDefault(),
             "endpointName",
