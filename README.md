@@ -11,7 +11,7 @@ Learn about large-scale data aggregation and management of large volumes of end-
 Open the solution in Visual Studio, right click on the application project "HealthMetrics" and select the "Package" command.
 Ensure that your local cluster is deployed and running in a 5 node configuration via Service Fabric Local Cluster Manager.
 Inside the Visual Studio Solution Explorer, within the Application project, expand the scripts folder. Then right click on "HealthMetricsDeployment.ps1" and select "Execute as Script".
-Once the script completes, the application should be deployed and visible in Service Fabric Explorer. By default the application is hosted in your local cluster at localhost:8080
+Once the script completes, the application should be deployed and visible in Service Fabric Explorer. By default the application is hosted in your local cluster at localhost:8081
 
 ## Deploy this sample to Azure
 Open the HealthMetricsDeployment script and change the following variables defined at the top of the script:
