@@ -1,7 +1,9 @@
 ---
-services: service-fabric
-platforms: dotnet
-author: masnider
+languages:
+- csharp
+products:
+- azure
+topic: sample
 ---
 
 # Service Fabric Data Aggregation Sample (aka HealthMetrics)
