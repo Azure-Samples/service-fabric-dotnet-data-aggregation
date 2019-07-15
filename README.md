@@ -3,7 +3,8 @@ languages:
 - csharp
 products:
 - azure
-topic: sample
+page_type: sample
+description: "Learn about large-scale data aggregation and management of large volumes of end-user devices with Service Fabric."
 ---
 
 # Service Fabric Data Aggregation Sample (aka HealthMetrics)
